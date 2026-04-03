@@ -1,0 +1,50 @@
+name: Publish Package
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@bjsdman'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build package
+        run: npm run build
+
+      - name: Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify Mattermost — success
+        if: success()
+        run: |
+          curl -s -X POST "${{ secrets.MM_WEBHOOK_URL }}" \
+            -H 'Content-Type: application/json' \
+            -d "{\"text\": \"@bjsdman/bjui published: $(node -p \"require('./package.json').version\") \"}"
+
+      - name: Notify Mattermost — failure
+        if: failure()
+        run: |
+          curl -s -X POST "${{ secrets.MM_WEBHOOK_URL }}" \
+            -H 'Content-Type: application/json' \
+            -d '{"text": "@bjsdman/bjui publish FAILED — check Actions"}'
