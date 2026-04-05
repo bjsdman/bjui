@@ -7,14 +7,14 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./tailwind/preset": {
+      "types": "./src/tailwind/preset.ts",
       "import": "./src/tailwind/preset.ts",
-      "require": "./src/tailwind/preset.ts",
-      "types": "./src/tailwind/preset.ts"
+      "require": "./src/tailwind/preset.ts"
     }
   },
   "files": [
@@ -25,7 +25,9 @@
     "build": "tsup src/index.ts --format esm,cjs --dts --external react",
     "dev": "tsup src/index.ts --format esm,cjs --dts --external react --watch",
     "lint": "eslint src/",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "prepare": "npm run build"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -36,12 +38,20 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.15",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript-eslint/eslint-plugin": "^8.58.0",
+    "@typescript-eslint/parser": "^8.58.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "jsdom": "^29.0.1",
     "tailwindcss": "^4",
     "tsup": "^8.0.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.2"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"

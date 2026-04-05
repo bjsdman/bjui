@@ -1,5 +1,3 @@
-import React from 'react';
-
 export type StatusValue = 'online' | 'offline' | 'degraded' | 'unknown';
 
 export interface StatusBadgeProps {

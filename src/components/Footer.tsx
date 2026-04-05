@@ -1,4 +1,3 @@
-import React from 'react';
 import { StatusBadge, StatusValue } from './StatusBadge';
 
 export interface FooterLink {
