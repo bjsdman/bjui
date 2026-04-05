@@ -38,9 +38,10 @@ jobs:
       - name: Notify Mattermost — success
         if: success()
         run: |
+          VERSION=$(node -p "require('./package.json').version")
           curl -s -X POST "${{ secrets.MM_WEBHOOK_URL }}" \
             -H 'Content-Type: application/json' \
-            -d "{\"text\": \"@bjsdman/bjui published: $(node -p \"require('./package.json').version\") \"}"
+            -d "{\"text\": \"@bjsdman/bjui v${VERSION} published successfully\"}"
 
       - name: Notify Mattermost — failure
         if: failure()
