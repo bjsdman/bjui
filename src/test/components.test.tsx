@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
@@ -119,6 +119,23 @@ describe('Header', () => {
   it('renders a rightSlot', () => {
     render(<Header siteName="TestSite" rightSlot={<button>Login</button>} />);
     expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
+  });
+
+  it('toggles the mobile nav open and closed when the menu button is clicked', () => {
+    const navItems = [{ label: 'Home', href: '/' }];
+    render(<Header siteName="TestSite" navItems={navItems} />);
+    const toggle = screen.getByRole('button', { name: /toggle navigation menu/i });
+    // Mobile nav is not present initially
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(toggle);
+    // After click the mobile nav should appear and aria-expanded should be true
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    const mobileNav = document.getElementById('mobile-nav');
+    expect(mobileNav).toBeInTheDocument();
+    fireEvent.click(toggle);
+    // After second click the mobile nav should close
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(document.getElementById('mobile-nav')).not.toBeInTheDocument();
   });
 });
 
