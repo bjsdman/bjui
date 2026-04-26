@@ -13,3 +13,6 @@ export type { ServiceCardProps } from './components/ServiceCard';
 
 export { StatusBadge } from './components/StatusBadge';
 export type { StatusBadgeProps, StatusValue } from './components/StatusBadge';
+
+export { Drawer } from './components/Drawer';
+export type { DrawerProps } from './components/Drawer';
