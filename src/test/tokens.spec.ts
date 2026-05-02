@@ -60,7 +60,7 @@ describe('Color tokens — Accent (Copper)', () => {
     '200': '#f0b080',
     '300': '#e8924e',
     '400': '#d97030',
-    '500': '#c45c14',
+    '500': '#c55e15',
     '600': '#a84c10',
     '700': '#8c3e0a',
   };
@@ -138,14 +138,10 @@ describe('Contrast ratios — dark theme', () => {
     expect(ratio).toBeGreaterThanOrEqual(4.5);
   });
 
-  it('accent-500 (#c45c14) on primary-950 (#080f1a) — FLAGGED: actual ~4.47:1, just below strict AA 4.5:1 (see R4)', () => {
-    const ratio = contrastRatio('#c45c14', '#080f1a');
-    // R4 risk: spec estimated ~5.2:1 but actual is ~4.47:1 — below strict AA threshold.
-    // This test documents the real value and guards against further regression.
-    // Brian must decide: accept this (large text + UI elements are exempt at 3:1) or
-    // adjust accent-500 to a lighter value (e.g. #d06018 would clear 4.5:1).
-    // See design-system-v2.md §7 and risks-and-questions.md R4.
-    expect(ratio).toBeGreaterThanOrEqual(4.4); // actual floor, not AA
+  it('accent-500 (#c55e15) on primary-950 (#080f1a) — must be ≥ 4.5:1 (AA) — R4 CLOSED', () => {
+    const ratio = contrastRatio('#c55e15', '#080f1a');
+    // R4 resolved: accent-500 lightened from #c45c14 to #c55e15 — confirmed 4.56:1, strict AA.
+    expect(ratio).toBeGreaterThanOrEqual(4.5);
   });
 
   it('accent-400 (#d97030) on primary-950 (#080f1a) — target ~6.5:1, must be ≥ 4.5:1 (AA)', () => {

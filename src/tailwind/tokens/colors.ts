@@ -20,7 +20,7 @@ export const colors = {
     200: '#f0b080',
     300: '#e8924e',
     400: '#d97030',  // hover / italic headline
-    500: '#c45c14',  // PRIMARY ACCENT — buttons, links, highlights
+    500: '#c55e15',  // PRIMARY ACCENT — buttons, links, highlights
     600: '#a84c10',  // hover state
     700: '#8c3e0a',  // pressed / dark state
   },
