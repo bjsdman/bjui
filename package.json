@@ -1,6 +1,6 @@
 {
   "name": "@bjsdman/bjui",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Shared UI component library for bjsdman homelab suite",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -15,7 +15,8 @@
       "types": "./src/tailwind/preset.ts",
       "import": "./src/tailwind/preset.ts",
       "require": "./src/tailwind/preset.ts"
-    }
+    },
+    "./tokens.css": "./src/tailwind/tokens.css"
   },
   "files": [
     "dist",
