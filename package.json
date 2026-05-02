@@ -16,7 +16,10 @@
       "import": "./src/tailwind/preset.ts",
       "require": "./src/tailwind/preset.ts"
     },
-    "./tokens.css": "./src/tailwind/tokens.css"
+    "./tokens.css": {
+      "style": "./src/tailwind/tokens.css",
+      "default": "./src/tailwind/tokens.css"
+    }
   },
   "files": [
     "dist",
