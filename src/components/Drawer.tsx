@@ -129,7 +129,8 @@ export function Drawer({ open, onClose, title, titleId, children, triggerRef }: 
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 z-40 bg-black/50"
+        className="fixed inset-0 z-40"
+        style={{ backgroundColor: 'rgba(8,15,26,0.7)' }}
         aria-hidden="true"
         onClick={onClose}
       />
@@ -141,18 +142,18 @@ export function Drawer({ open, onClose, title, titleId, children, triggerRef }: 
         aria-modal="true"
         aria-labelledby={titleId}
         className={[
-          'fixed right-0 top-0 z-50 h-full w-full max-w-md',
-          'bg-neutral-900 border-l border-neutral-700',
+          'fixed right-0 top-0 z-50 h-full w-full max-w-[360px] lg:max-w-[360px] sm:max-w-full',
+          'bg-primary-900 border-l border-primary-700',
           'flex flex-col',
           'translate-x-0 transition-transform duration-200 ease-out',
         ].join(' ')}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Panel header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-700 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-primary-700 flex-shrink-0">
           <h2
             id={titleId}
-            className="text-sm font-semibold text-neutral-100 font-mono"
+            className="text-sm font-semibold text-neutral-100 font-sans"
           >
             {title}
           </h2>
@@ -161,7 +162,7 @@ export function Drawer({ open, onClose, title, titleId, children, triggerRef }: 
             type="button"
             aria-label="Close activity queue"
             onClick={onClose}
-            className="rounded-md p-1.5 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
+            className="rounded p-1.5 text-neutral-400 hover:text-neutral-100 hover:bg-primary-800 transition-colors focus:outline-none focus:[outline:2px_solid_#c45c14] focus:outline-offset-2"
           >
             <X size={16} aria-hidden="true" />
           </button>

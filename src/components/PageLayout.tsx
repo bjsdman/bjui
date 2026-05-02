@@ -30,15 +30,15 @@ export function PageLayout({
   texture = false,
 }: PageLayoutProps) {
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-900 dark:bg-neutral-900">
+    <div className="flex flex-col min-h-screen bg-primary-950 text-neutral-100 font-sans antialiased">
       <Header {...header} />
       <main
         className={[
           'flex-1',
           maxWidthMap[maxWidth],
           'w-full mx-auto',
-          padded ? 'px-6 md:px-8 pt-8 pb-6' : '',
-          texture ? 'bg-[url("data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Ccircle cx=\'1\' cy=\'1\' r=\'1\' fill=\'%23334155\' fill-opacity=\'0.05\'/%3E%3C/svg%3E")]' : '',
+          padded ? 'px-[clamp(24px,6vw,100px)] pt-[100px] pb-[100px]' : '',
+          texture ? 'bg-[url("data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Ccircle cx=\'1\' cy=\'1\' r=\'1\' fill=\'%231c2e4a\' fill-opacity=\'0.08\'/%3E%3C/svg%3E")]' : '',
           className ?? '',
         ]
           .filter(Boolean)

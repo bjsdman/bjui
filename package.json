@@ -1,6 +1,6 @@
 {
   "name": "@bjsdman/bjui",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "Shared UI component library for bjsdman homelab suite",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

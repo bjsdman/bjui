@@ -11,30 +11,30 @@ export interface StatusBadgeProps {
 
 const statusConfig: Record<
   StatusValue,
-  { dotClass: string; bgClass: string; textClass: string; defaultLabel: string }
+  { dotClass: string; bgColor: string; textClass: string; defaultLabel: string }
 > = {
   online: {
     dotClass: 'bg-success-400',
-    bgClass: 'bg-success-900/30',
-    textClass: 'text-success-400',
+    bgColor: 'rgba(91,168,111,0.12)',
+    textClass: 'text-success-500',
     defaultLabel: 'ONLINE',
   },
   offline: {
     dotClass: 'bg-error-400',
-    bgClass: 'bg-error-900/30',
-    textClass: 'text-error-400',
+    bgColor: 'rgba(201,85,74,0.12)',
+    textClass: 'text-error-500',
     defaultLabel: 'OFFLINE',
   },
   degraded: {
     dotClass: 'bg-warning-400',
-    bgClass: 'bg-warning-900/30',
-    textClass: 'text-warning-400',
+    bgColor: 'rgba(214,162,74,0.12)',
+    textClass: 'text-warning-500',
     defaultLabel: 'DEGRADED',
   },
   unknown: {
     dotClass: 'bg-info-400',
-    bgClass: 'bg-info-900/30',
-    textClass: 'text-info-400',
+    bgColor: 'rgba(83,120,168,0.12)',
+    textClass: 'text-info-500',
     defaultLabel: 'UNKNOWN',
   },
 };
@@ -74,9 +74,9 @@ export function StatusBadge({
     <span
       role="status"
       aria-label={`Service status: ${displayLabel.toLowerCase()}`}
+      style={{ backgroundColor: config.bgColor }}
       className={[
-        'inline-flex items-center gap-1.5 rounded font-mono font-medium uppercase',
-        config.bgClass,
+        'inline-flex items-center gap-1.5 rounded-full font-mono font-medium uppercase',
         config.textClass,
         sizeStyle.font,
         sizeStyle.padding,

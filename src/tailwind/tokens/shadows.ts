@@ -4,8 +4,14 @@ export const boxShadow = {
   DEFAULT: '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)',
   md: '0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05)',
   lg: '0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05)',
-  'glow-primary': '0 0 0 3px rgba(99,102,241,0.3)',
-  'glow-success': '0 0 8px rgba(34,197,94,0.4)',
+  // BMJ brand shadows
+  'logo':    '0 0 0 1px rgba(196,92,20,0.25), 0 24px 80px rgba(196,92,20,0.20), 0 8px 32px rgba(0,0,0,0.50)',
+  'card':    '0 4px 24px rgba(0,0,0,0.3)',
+  'card-lg': '0 8px 40px rgba(0,0,0,0.4)',
+  'copper':  '0 0 24px rgba(196,92,20,0.25)',
+  // Legacy glow-success kept; glow-primary replaced with copper variant
+  'glow-copper':  '0 0 0 3px rgba(196,92,20,0.3)',
+  'glow-success': '0 0 8px rgba(91,168,111,0.4)',
 };
 
 export const keyframes = {

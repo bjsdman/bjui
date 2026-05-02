@@ -1,18 +1,11 @@
 export const fontFamily = {
-  sans: [
-    'Inter',
-    'ui-sans-serif',
-    'system-ui',
-    '-apple-system',
-    'sans-serif',
-  ],
-  mono: [
-    'JetBrains Mono',
-    'Fira Code',
-    'ui-monospace',
-    'Cascadia Code',
-    'monospace',
-  ],
+  // UI / body sans — Outfit replaces Inter
+  sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  ui:   ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  // Display / headline — DM Serif Display (new in v2.0)
+  display: ['"DM Serif Display"', 'ui-serif', 'Georgia', 'serif'],
+  // Mono — unchanged
+  mono: ['JetBrains Mono', 'Fira Code', 'ui-monospace', 'Cascadia Code', 'monospace'],
 };
 
 export const fontSize = {
