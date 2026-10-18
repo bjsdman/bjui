@@ -1,6 +1,7 @@
 # bjui Design System
 
 > **SUPERSEDED (2026-10-17).** Historical v0.1 indigo spec, retired by the BMJ Strategies rebrand (bjui v1.0.0). The live spec is [`../design-system.md`](../design-system.md).
+
 **Version:** 0.1.0-draft  
 **Date:** 2026-04-03  
 **Author:** Yuri (UI/UX Designer)  
