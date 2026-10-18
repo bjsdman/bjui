@@ -322,7 +322,7 @@ Asset deployment: PNGs are copied into each consumer's `public/` folder. They ar
 
 ## 7. Accessibility
 
-WCAG 2.1 AA is the floor. **Updated for dark-only theme and new token values (2026-05-01).**
+WCAG 2.2 AA is the floor (raised from 2.1 on 2026-10-18 for SC 2.5.7 Dragging Movements, bjui#7). **Updated for dark-only theme and new token values (2026-05-01).**
 
 Dark theme contrast ratios (verified for the single theme):
 

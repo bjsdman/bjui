@@ -27,11 +27,21 @@ src/components/
   Footer.tsx
   PageLayout.tsx
   ServiceCard.tsx
-  StatusBadge.tsx
+  StatusBadge.tsx  — service status pill; optional `tone` (success | warning | error | info | neutral) for non-status uses
+  Drawer.tsx       — right-side modal panel: focus in/out, Tab trap, Escape/overlay close, scroll lock
+  DataTable.tsx    — sortable, expandable, column-reorderable table (keyboard + drag), excluded-row filter
 src/
   index.ts      — public exports (everything consumed by other repos comes from here)
-  tailwind/     — shared Tailwind config/preset
+  tailwind/     — shared Tailwind config/preset and tokens.css
+  test/         — vitest + Testing Library component tests (one file per component)
 ```
+
+**DataTable notes.** Column order persists in `localStorage` under
+`bjui.datatable.<tableId>.columnOrder`, so `tableId` must be stable and unique per
+page. Storage is read after mount (SSR-safe) and every storage call is guarded.
+Reordering has a keyboard path ("Move column" handle, ArrowLeft/ArrowRight,
+announced in a polite live region) to meet WCAG 2.2 SC 2.5.7 Dragging Movements;
+never ship a drag-only interaction.
 
 ---
 
@@ -42,6 +52,7 @@ npm run dev        # watch mode build
 npm run build      # production build
 npm run lint       # eslint
 npm run type-check # tsc --noEmit
+npm test           # vitest (CI also runs the test-gate on agent PRs)
 ```
 
 ---
@@ -72,6 +83,7 @@ Consumer repos pin a git tag (`github:bjsdman/bjui#vX.Y.Z`) and must move that p
 ## Key Rules
 
 - All exports must go through `src/index.ts` — nothing is consumed by direct file import
-- Components must be accessible (WCAG 2.1 AA) — Yuri reviews before merge
+- Components must be accessible (WCAG 2.2 AA) — Yuri reviews before merge
+- Every component has tests in `src/test/`. A change under `src/components/`, `src/tailwind/` or `src/index.ts` needs a test change (CI test-gate; `tokens.css` counts as functional)
 - No application logic here — pure UI primitives only
 - Tailwind config changes affect all consumers — treat as breaking changes
