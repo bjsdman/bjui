@@ -60,12 +60,12 @@ The authoritative design spec lives at `docs/design-system.md` (authored by Yuri
 
 ## Publishing
 
-This package is consumed by other repos as `@bjsdman/bjui`. After any change:
-1. Bump the version in `package.json`
-2. Run `npm run build`
-3. Commit and push — the GitHub Actions workflow handles publishing
+This package is consumed by other repos as `@bjsdman/bjui`. Merge to `main` and `publish.yml` does the rest: patch bump, git tag `vX.Y.Z`, publish. **Do not bump `package.json` for a patch** and **do not push tags by hand** — tags are created only by the workflow.
 
-Consumer repos (`bjhomesite`, `bjlandingpage`) must update their dependency version to pick up changes.
+- **Minor/major (manual bypass):** run `npm version minor --no-git-tag-version` (or `major`) and merge. The workflow sees the version changed, skips the auto-bump, and tags that version.
+- **Docs-only** changes (`**.md`, `docs/**`, `site-assets/**`) do not cut a version.
+
+Consumer repos pin a git tag (`github:bjsdman/bjui#vX.Y.Z`) and must move that pin to pick up changes.
 
 ---
 
