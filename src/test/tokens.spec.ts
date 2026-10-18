@@ -161,3 +161,24 @@ describe('Contrast ratios — dark theme', () => {
     expect(ratio).toBeGreaterThanOrEqual(4.5);
   });
 });
+
+// Pairings introduced by DataTable / StatusBadge tone="neutral" (bjui#7).
+describe('Contrast ratios — DataTable surfaces', () => {
+  const text: Array<[string, string, string, string]> = [
+    ['neutral-400', colors.neutral[400], 'primary-900', colors.primary[900]], // header + muted text on table surface
+    ['neutral-400', colors.neutral[400], 'primary-800', colors.primary[800]], // muted text on row hover
+    ['neutral-400', colors.neutral[400], 'primary-700', colors.primary[700]], // neutral badge
+    ['neutral-100', colors.neutral[100], 'primary-800', colors.primary[800]], // body text on row hover
+    ['neutral-200', colors.neutral[200], 'primary-950', colors.primary[950]], // expanded detail text
+  ];
+  for (const [fgName, fg, bgName, bg] of text) {
+    it(`${fgName} on ${bgName} ≥ 4.5:1 (AA text)`, () => {
+      expect(contrastRatio(fg, bg)).toBeGreaterThanOrEqual(4.5);
+    });
+  }
+
+  it('accent-500 focus ring on primary-900 and primary-800 ≥ 3:1 (SC 1.4.11 non-text)', () => {
+    expect(contrastRatio(colors.accent[500], colors.primary[900])).toBeGreaterThanOrEqual(3);
+    expect(contrastRatio(colors.accent[500], colors.primary[800])).toBeGreaterThanOrEqual(3);
+  });
+});

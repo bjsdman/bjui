@@ -10,7 +10,12 @@ import { render, screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderToString } from 'react-dom/server';
 
-import { DataTable } from '../components/DataTable';
+import {
+  DataTable,
+  reconcileColumnOrder,
+  sortRows,
+  compareSortValues,
+} from '../components/DataTable';
 import type { DataTableColumn, DataTableProps } from '../index';
 
 // ─── Fixture ─────────────────────────────────────────────────────────────────
@@ -645,5 +650,205 @@ describe('DataTable — public exports', () => {
   it('is exported from the package entry point', async () => {
     const mod = await import('../index');
     expect(mod.DataTable).toBe(DataTable);
+  });
+});
+
+// ─── Edge cases ──────────────────────────────────────────────────────────────
+
+describe('DataTable — edge cases: pure helpers', () => {
+  it('reconcileColumnOrder collapses duplicate persisted ids', () => {
+    expect(reconcileColumnOrder(['b', 'a', 'b', 'a'], ['a', 'b', 'c'])).toEqual(['b', 'a', 'c']);
+  });
+
+  it('reconcileColumnOrder inserts several new columns at their default indexes', () => {
+    // default: a x b y c   persisted (old): c b a
+    expect(reconcileColumnOrder(['c', 'b', 'a'], ['a', 'x', 'b', 'y', 'c'])).toEqual(['c', 'x', 'b', 'y', 'a']);
+  });
+
+  it('reconcileColumnOrder with an empty persisted list yields the default order', () => {
+    expect(reconcileColumnOrder([], ['a', 'b'])).toEqual(['a', 'b']);
+  });
+
+  it('sortRows treats NaN as missing (last in both directions)', () => {
+    const rows = [{ v: NaN }, { v: 2 }, { v: 1 }];
+    expect(sortRows(rows, (r) => r.v, 'asc').map((r) => r.v)).toEqual([1, 2, NaN]);
+    expect(sortRows(rows, (r) => r.v, 'desc').map((r) => r.v)).toEqual([2, 1, NaN]);
+  });
+
+  it('sortRows is stable for ties', () => {
+    const rows = [{ k: 1, id: 'x' }, { k: 0, id: 'y' }, { k: 1, id: 'z' }, { k: 0, id: 'w' }];
+    expect(sortRows(rows, (r) => r.k, 'asc').map((r) => r.id)).toEqual(['y', 'w', 'x', 'z']);
+    expect(sortRows(rows, (r) => r.k, 'desc').map((r) => r.id)).toEqual(['x', 'z', 'y', 'w']);
+  });
+
+  it('compareSortValues compares mixed number/string by numeric collation', () => {
+    expect(compareSortValues(10, '9')).toBeGreaterThan(0);
+    expect(compareSortValues('2', 10)).toBeLessThan(0);
+  });
+
+  it('sortRows treats empty string as a value, not as missing', () => {
+    const rows = [{ v: 'b' }, { v: '' }, { v: null }];
+    expect(sortRows(rows, (r) => r.v, 'asc').map((r) => r.v)).toEqual(['', 'b', null]);
+  });
+});
+
+describe('DataTable — edge cases: behaviour', () => {
+  it('announces when a move is blocked at an edge', () => {
+    const { container } = renderTable();
+    fireEvent.keyDown(handle('Name'), { key: 'ArrowLeft' });
+    expect(liveRegion(container)).toHaveTextContent('Name is already at position 1 of 5');
+  });
+
+  it('other keys on the handle do nothing', () => {
+    renderTable();
+    fireEvent.keyDown(handle('Name'), { key: 'ArrowDown' });
+    fireEvent.keyDown(handle('Name'), { key: 'Enter' });
+    expect(headerOrder()).toEqual(DEFAULT_ORDER);
+  });
+
+  it('Reset announces the reset', async () => {
+    const user = userEvent.setup();
+    const { container } = renderTable();
+    fireEvent.keyDown(handle('Name'), { key: 'ArrowRight' });
+    await user.click(screen.getByRole('button', { name: 'Reset columns' }));
+    expect(liveRegion(container)).toHaveTextContent('Columns reset to default order');
+  });
+
+  it('a drop without a matching dragstart (external drag) is ignored', () => {
+    renderTable();
+    const ev = new Event('dragover', { bubbles: true, cancelable: true });
+    th('Brand').dispatchEvent(ev);
+    expect(ev.defaultPrevented).toBe(false);
+    fireEvent.drop(th('Brand'));
+    expect(headerOrder()).toEqual(DEFAULT_ORDER);
+  });
+
+  it('reorderable={false} ignores a persisted order', () => {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(['notes', 'name', 'price', 'brand', 'color']));
+    renderTable({ reorderable: false });
+    expect(headerOrder()).toEqual(DEFAULT_ORDER);
+  });
+
+  it('stored JSON that is not a string array is ignored', () => {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify([1, 2, 3]));
+    renderTable();
+    expect(headerOrder()).toEqual(DEFAULT_ORDER);
+  });
+
+  it('moving back to the default order clears storage', () => {
+    renderTable();
+    fireEvent.keyDown(handle('Name'), { key: 'ArrowRight' });
+    fireEvent.keyDown(handle('Name'), { key: 'ArrowLeft' });
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBeNull();
+  });
+
+  it('a column added at runtime appears in its default position within a custom order', () => {
+    const extra: DataTableColumn<Spool> = { id: 'extra', header: 'Extra', cell: () => 'x' };
+    const { rerender } = renderTable();
+    fireEvent.keyDown(handle('Notes'), { key: 'ArrowLeft' }); // Name Price Brand Notes Color
+    rerender(
+      <DataTable<Spool> tableId="spools" columns={[...COLUMNS, extra]} rows={ROWS} getRowId={(r) => r.id} />,
+    );
+    expect(dataHeaders().map((h) => h.getAttribute('data-column-id'))).toEqual([
+      'name', 'price', 'brand', 'notes', 'color', 'extra',
+    ]);
+  });
+
+  it('a column removed at runtime disappears; a sort on it is dropped without crashing', async () => {
+    const user = userEvent.setup();
+    const { rerender } = renderTable();
+    await user.click(sortButton('Price'));
+    rerender(
+      <DataTable<Spool>
+        tableId="spools"
+        columns={COLUMNS.filter((c) => c.id !== 'price')}
+        rows={ROWS}
+        getRowId={(r) => r.id}
+      />,
+    );
+    expect(table().querySelector('th[data-column-id="price"]')).not.toBeInTheDocument();
+    expect(rowIds()).toEqual(['a', 'b', 'c', 'd']);
+  });
+
+  it('a defaultSort naming an unknown column leaves rows in input order', () => {
+    renderTable({ defaultSort: { columnId: 'nope', direction: 'asc' } });
+    expect(rowIds()).toEqual(['a', 'b', 'c', 'd']);
+  });
+
+  it('expanded state follows the row through a re-sort', async () => {
+    const user = userEvent.setup();
+    renderTable({ renderExpanded: (r) => `Details ${r.id}`, rowLabel: (r) => r.name });
+    await user.click(screen.getByRole('button', { name: 'Show details for PLA Red' }));
+    await user.click(sortButton('Price'));
+    const btn = screen.getByRole('button', { name: 'Show details for PLA Red' });
+    expect(btn).toHaveAttribute('aria-expanded', 'true');
+    expect(btn.closest('tr')!.nextElementSibling).toHaveTextContent('Details a');
+  });
+
+  it('aria-controls resolves for row ids containing spaces and symbols', async () => {
+    const user = userEvent.setup();
+    const rows = [{ ...ROWS[0], id: 'spool #1 / "red"' }];
+    renderTable({ rows, renderExpanded: () => 'open', rowLabel: (r) => r.name });
+    const btn = screen.getByRole('button', { name: 'Show details for PLA Red' });
+    await user.click(btn);
+    expect(btn.getAttribute('aria-controls')).not.toMatch(/\s/);
+    expect(document.getElementById(btn.getAttribute('aria-controls')!)).toHaveTextContent('open');
+  });
+
+  it('two tables on one page get distinct aria-controls ids for the same row ids', () => {
+    render(
+      <>
+        <DataTable<Spool> tableId="t1" columns={COLUMNS} rows={ROWS} getRowId={(r) => r.id} renderExpanded={() => 'x'} />
+        <DataTable<Spool> tableId="t2" columns={COLUMNS} rows={ROWS} getRowId={(r) => r.id} renderExpanded={() => 'x'} />
+      </>,
+    );
+    const ids = screen.getAllByRole('button', { name: /show details for/i }).map((b) => b.getAttribute('aria-controls'));
+    expect(new Set(ids).size).toBe(ROWS.length * 2);
+  });
+
+  it('default expand-button name falls back to the displayed row position', () => {
+    renderTable({ renderExpanded: () => 'x' });
+    expect(screen.getByRole('button', { name: 'Show details for row 1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Show details for row 4' })).toBeInTheDocument();
+  });
+
+  it('the excluded badge stays in the first displayed column after a reorder', async () => {
+    const user = userEvent.setup();
+    renderTable({ isRowExcluded: (r) => r.id === 'a' });
+    await user.click(screen.getByRole('checkbox'));
+    fireEvent.keyDown(handle('Price'), { key: 'ArrowLeft' }); // Price first
+    const tr = table().querySelector('tr[data-row-id="a"]') as HTMLTableRowElement;
+    expect(within(tr.cells[0]).getByRole('status', { name: 'Excluded' })).toBeInTheDocument();
+    expect(within(tr.cells[1]).queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('excluded rows are sorted together with included rows when shown', async () => {
+    const user = userEvent.setup();
+    renderTable({ isRowExcluded: (r) => r.id === 'c' });
+    await user.click(sortButton('Price'));
+    expect(rowIds()).toEqual(['a', 'd', 'b']);
+    await user.click(screen.getByRole('checkbox'));
+    expect(rowIds()).toEqual(['c', 'a', 'd', 'b']);
+  });
+
+  it('the excluded count tracks changing rows', () => {
+    const { rerender } = renderTable({ isRowExcluded: (r) => r.price === null });
+    expect(screen.getByRole('checkbox', { name: 'Show excluded (1)' })).toBeInTheDocument();
+    rerender(
+      <DataTable<Spool>
+        tableId="spools"
+        columns={COLUMNS}
+        rows={ROWS.map((r) => ({ ...r, price: null }))}
+        getRowId={(r) => r.id}
+        isRowExcluded={(r) => r.price === null}
+      />,
+    );
+    expect(screen.getByRole('checkbox', { name: 'Show excluded (4)' })).toBeInTheDocument();
+  });
+
+  it('empty-state cell spans every column including the expander', () => {
+    renderTable({ rows: [], renderExpanded: () => 'x' });
+    const td = table().querySelector('tbody td') as HTMLTableCellElement;
+    expect(td.colSpan).toBe(table().querySelectorAll('thead th').length);
   });
 });
