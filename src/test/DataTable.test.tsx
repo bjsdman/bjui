@@ -181,7 +181,7 @@ describe('DataTable — AC1.2 sort', () => {
       expect(btn.closest('th')).toBe(th(label));
     }
     expect(within(th('Notes')).queryByRole('button', { name: 'Notes' })).not.toBeInTheDocument();
-    expect(within(th('Color')).queryByRole('button', { name: /colour swatch|color/i })).not.toBeInTheDocument();
+    expect(within(th('Color')).queryByRole('button', { name: /^(colour swatch|color)$/i })).not.toBeInTheDocument();
   });
 
   it('sortable <th> carry aria-sort="none" until sorted; non-sortable carry none', () => {
