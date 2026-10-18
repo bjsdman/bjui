@@ -852,3 +852,40 @@ describe('DataTable — edge cases: behaviour', () => {
     expect(td.colSpan).toBe(table().querySelectorAll('thead th').length);
   });
 });
+
+describe('DataTable — edge cases: focus restore and storage failures', () => {
+  it('restores focus to the moved handle when the browser drops it during the DOM move', () => {
+    renderTable();
+    const brand = handle('Brand');
+    brand.focus();
+    // Native listener on the target runs before React's root-delegated handler,
+    // standing in for a browser that blurs a node when it is re-parented.
+    brand.addEventListener('keydown', () => brand.blur());
+    fireEvent.keyDown(brand, { key: 'ArrowLeft' });
+    expect(headerOrder()).toEqual(['Name', 'Brand', 'Price', 'Color', 'Notes']);
+    expect(document.activeElement).toBe(handle('Brand'));
+  });
+
+  it('when localStorage.setItem throws, the move still completes and is announced', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+    const { container } = renderTable();
+    fireEvent.keyDown(handle('Name'), { key: 'ArrowRight' });
+    expect(headerOrder()).toEqual(['Price', 'Name', 'Brand', 'Color', 'Notes']);
+    expect(liveRegion(container)).toHaveTextContent('Name moved to position 2 of 5');
+    expect(screen.getByRole('button', { name: /reset columns/i })).toBeInTheDocument();
+  });
+
+  it('when localStorage.removeItem throws, Reset still restores the default order and announces it', async () => {
+    const user = userEvent.setup();
+    const { container } = renderTable();
+    fireEvent.keyDown(handle('Name'), { key: 'ArrowRight' });
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+      throw new Error('SecurityError');
+    });
+    await user.click(screen.getByRole('button', { name: /reset columns/i }));
+    expect(headerOrder()).toEqual(DEFAULT_ORDER);
+    expect(liveRegion(container)).toHaveTextContent('Columns reset to default order');
+  });
+});
