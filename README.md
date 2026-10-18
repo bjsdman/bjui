@@ -54,7 +54,10 @@ npm test            # vitest (components + token snapshots)
 | Event | Workflow | Result |
 |-------|----------|--------|
 | PR to `main` | `ci.yml` | lint, type-check, test, build |
-| Push to `main` | `publish.yml` | auto patch bump → publish to GitHub Packages → Mattermost notice |
-| Push of a `v*` tag | `publish.yml` | publish at the tagged version (no bump) |
+| Push to `main` | `publish.yml` | auto patch bump → tag `vX.Y.Z` → publish to GitHub Packages → Mattermost notice |
+| Push to `main` that already changed `version` | `publish.yml` | no bump; tag that version → publish (use for minor/major) |
+| Push touching only `**.md`, `docs/**`, `site-assets/**` | — | nothing; no version cut |
+
+Every published version has a matching tag; tags are created only by the workflow, never by hand.
 
 Tailwind preset and token changes affect every consumer, so treat them as breaking.

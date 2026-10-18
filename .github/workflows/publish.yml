@@ -3,8 +3,17 @@ name: Publish Package
 on:
   push:
     branches: [main]
-    tags:
-      - 'v[0-9]*'
+    # Docs/assets-only pushes do not cut a version. A push is skipped only
+    # when EVERY changed file matches, so mixed src+docs merges still release.
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'site-assets/**'
+
+# Serialize runs so two merges in quick succession cannot race the bump.
+concurrency:
+  group: publish
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -16,6 +25,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          # Tip of main, not the triggering SHA: a queued run must build on
+          # top of the previous run's bump commit or its push is rejected.
+          ref: main
+          # Full history + tags: the release decision is made from tags.
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v5
@@ -37,24 +52,45 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Bump patch version (branch pushes only)
-        # Skip auto-bump on tag pushes — version is already set correctly
-        if: github.ref_type == 'branch'
+      - name: Bump, tag, push
+        id: release
+        # Every published version gets a matching tag, pushed atomically with
+        # its commit, so package.json and tags cannot drift (bjui#4).
+        # Tags are the source of truth:
+        #   HEAD already tagged      -> nothing new (queued run landed on the
+        #                               previous run's bump commit); skip.
+        #   v<version> tag exists    -> auto patch bump, then tag.
+        #   v<version> tag missing   -> manual bypass (e.g. `npm version minor`
+        #                               was merged); tag that version as-is.
         run: |
-          npm version patch --no-git-tag-version
-          git add package.json package-lock.json
-          git commit -m "chore: bump patch version [skip ci]"
-          git push
+          if [ -n "$(git tag --points-at HEAD 'v*')" ]; then
+            echo "HEAD is already tagged ($(git tag --points-at HEAD 'v*')); nothing to release"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          CUR=$(node -p "require('./package.json').version")
+          if git rev-parse -q --verify "refs/tags/v$CUR" >/dev/null; then
+            npm version patch --no-git-tag-version
+            V="v$(node -p "require('./package.json').version")"
+            git add package.json package-lock.json
+            git commit -m "chore: bump patch version to $V [skip ci]"
+          else
+            V="v$CUR"
+            echo "v$CUR is untagged; manual version change, tagging without auto-bump"
+          fi
+          git tag "$V"
+          git push --atomic origin HEAD "$V"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to GitHub Packages
+        if: steps.release.outputs.skip != 'true'
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify Mattermost — success
-        if: success()
+        if: success() && steps.release.outputs.skip != 'true'
         run: |
           VERSION=$(node -p "require('./package.json').version")
           curl -s -X POST "${{ secrets.MM_WEBHOOK_URL }}" \
