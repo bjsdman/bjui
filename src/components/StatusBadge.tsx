@@ -1,7 +1,17 @@
 export type StatusValue = 'online' | 'offline' | 'degraded' | 'unknown';
 
+/** Generic semantic tone, decoupled from service status. */
+export type StatusTone = 'success' | 'warning' | 'error' | 'info' | 'neutral';
+
 export interface StatusBadgeProps {
-  status: StatusValue;
+  /** Service status. Ignored for colour when `tone` is given. Defaults to 'unknown'. */
+  status?: StatusValue;
+  /**
+   * Generic tone. When given it drives colours, the aria-label is `label`
+   * itself (not "Service status: ..."), and the dot does not pulse unless
+   * `pulse` is set. Pass `label`; it defaults to the tone in upper case.
+   */
+  tone?: StatusTone;
   size?: 'sm' | 'md' | 'lg';
   showLabel?: boolean;
   showDot?: boolean;
@@ -39,6 +49,29 @@ const statusConfig: Record<
   },
 };
 
+interface ColourConfig {
+  dotClass: string;
+  textClass: string;
+  /** Legacy status badges set their tint inline; kept as-is for byte-identical output. */
+  bgColor?: string;
+  bgClass?: string;
+}
+
+// Coloured tones reuse the status palette (design-system §3.4 mapping):
+// success = online, warning = degraded, error = offline, info = unknown.
+const toneConfig: Record<StatusTone, ColourConfig> = {
+  success: statusConfig.online,
+  warning: statusConfig.degraded,
+  error: statusConfig.offline,
+  info: statusConfig.unknown,
+  // design-system §5.5 "Neutral badge": primary-700 bg, neutral-400 text.
+  neutral: {
+    dotClass: 'bg-neutral-400',
+    textClass: 'text-neutral-400',
+    bgClass: 'bg-primary-700',
+  },
+};
+
 const sizeConfig = {
   sm: {
     dotSize: 'w-1.5 h-1.5',
@@ -58,26 +91,29 @@ const sizeConfig = {
 };
 
 export function StatusBadge({
-  status,
+  status = 'unknown',
+  tone,
   size = 'md',
   showLabel = true,
   showDot = true,
   label,
   pulse,
 }: StatusBadgeProps) {
-  const config = statusConfig[status];
   const sizeStyle = sizeConfig[size];
-  const shouldPulse = pulse ?? status === 'online';
-  const displayLabel = label ?? config.defaultLabel;
+  const config: ColourConfig = tone ? toneConfig[tone] : statusConfig[status];
+  const shouldPulse = pulse ?? (!tone && status === 'online');
+  const displayLabel = label ?? (tone ? tone.toUpperCase() : statusConfig[status].defaultLabel);
+  const ariaLabel = tone ? displayLabel : `Service status: ${displayLabel.toLowerCase()}`;
 
   return (
     <span
       role="status"
-      aria-label={`Service status: ${displayLabel.toLowerCase()}`}
-      style={{ backgroundColor: config.bgColor }}
+      aria-label={ariaLabel}
+      style={config.bgColor ? { backgroundColor: config.bgColor } : undefined}
       className={[
         'inline-flex items-center gap-1.5 rounded-full font-mono font-medium uppercase',
         config.textClass,
+        ...(config.bgClass ? [config.bgClass] : []),
         sizeStyle.font,
         sizeStyle.padding,
       ].join(' ')}
