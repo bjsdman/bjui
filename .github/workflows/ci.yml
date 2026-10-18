@@ -5,6 +5,79 @@ on:
     branches: [main]
 
 jobs:
+  # ─────────────────────────────────────────────────────────────────
+  # test-gate — enforces on agent-authored PRs (spec: homelab-vault
+  # agent-execution). Functional paths are checked BEFORE exemptions, so
+  # src/tailwind/tokens.css (a design-token change every consumer inherits)
+  # counts as functional even though it is CSS.
+  # Escape hatch: [tests-not-required: <reason>] in the PR body.
+  # ─────────────────────────────────────────────────────────────────
+  test-gate:
+    name: Test gate (agent PRs)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check PR author
+        id: author-check
+        env:
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          if [[ "${AUTHOR}" != "bjsdman-agent[bot]" ]]; then
+            echo "PR author is ${AUTHOR} (not the agent) — gate skipped."
+            echo "enforce=false" >> $GITHUB_OUTPUT
+          else
+            echo "enforce=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for tests-not-required escape phrase
+        if: steps.author-check.outputs.enforce == 'true'
+        id: escape-check
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if printf '%s' "${PR_BODY}" | grep -qE '\[tests-not-required:[^]]+\]'; then
+            echo "exempt=true" >> $GITHUB_OUTPUT
+          else
+            echo "exempt=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout PR
+        if: steps.author-check.outputs.enforce == 'true' && steps.escape-check.outputs.exempt == 'false'
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Classify changed paths and enforce
+        if: steps.author-check.outputs.enforce == 'true' && steps.escape-check.outputs.exempt == 'false'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -e
+          FUNCTIONAL=false; TESTS=false; MISSING=""
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            if [[ "$f" =~ (^src/test/|\.test\.|\.spec\.) ]]; then
+              echo "TEST:       $f"; TESTS=true
+            elif [[ "$f" =~ ^src/(components/|tailwind/|index\.ts$) ]]; then
+              echo "FUNCTIONAL: $f"; FUNCTIONAL=true; MISSING="${MISSING}\n- ${f}"
+            elif [[ "$f" =~ (\.md$|^docs/|^site-assets/|^\.github/|^src/assets/|package(-lock)?\.json$|tsconfig\.json$|^\.gitignore$) ]]; then
+              echo "EXEMPT:     $f"
+            else
+              echo "OTHER:      $f (treated as exempt)"
+            fi
+          done <<< "$(git diff --name-only "${BASE_SHA}...${HEAD_SHA}")"
+          if [[ "${FUNCTIONAL}" == "true" && "${TESTS}" == "false" ]]; then
+            printf ':x: **Test gate FAILED** — functional source changed with no test changes:%b\n' "${MISSING}" > /tmp/gate.md
+            gh pr comment "${PR_NUMBER}" --repo "${{ github.repository }}" --body-file /tmp/gate.md
+            echo "::error::Test gate failed"; exit 1
+          fi
+          echo "Gate PASSED — functional=${FUNCTIONAL}, tests=${TESTS}"
+
   build-and-test:
     runs-on: ubuntu-latest
     permissions:
