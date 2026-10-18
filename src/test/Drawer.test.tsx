@@ -6,7 +6,7 @@
  * trap, body scroll lock. Known defects are listed as todos against their follow-up
  * issue rather than encoded as expected behaviour.
  */
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
