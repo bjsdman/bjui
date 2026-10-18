@@ -9,6 +9,14 @@ import { describe, it, expect } from 'vitest';
 import { colors } from '../tailwind/tokens/colors';
 import { fontFamily } from '../tailwind/tokens/typography';
 
+// ── Typed key iteration ───────────────────────────────────────────────────────
+// Token scales use numeric keys (50, 100, ...). Object.keys() returns strings at
+// runtime, so map back to numbers: the cast below then matches the runtime value.
+
+function numericKeys<T extends Record<number, unknown>>(obj: T): Array<keyof T & number> {
+  return Object.keys(obj).map(Number) as Array<keyof T & number>;
+}
+
 // ── Contrast ratio utility ────────────────────────────────────────────────────
 
 function hexToLinear(channel: number): number {
@@ -34,39 +42,41 @@ function contrastRatio(hex1: string, hex2: string): number {
 // ── Color token snapshot ─────────────────────────────────────────────────────
 
 describe('Color tokens — Primary (Navy)', () => {
-  const expected: Record<string, string> = {
-    '50':  '#e8f0f7',
-    '100': '#c3d4ea',
-    '200': '#8aaad4',
-    '300': '#5a7db5',
-    '400': '#3d5f96',
-    '500': '#2d4875',
-    '600': '#243a5e',
-    '700': '#1c2e4a',
-    '800': '#132035',
-    '900': '#0d1624',
-    '950': '#080f1a',
+  const expected: Record<keyof typeof colors.primary, string> = {
+    50:  '#e8f0f7',
+    100: '#c3d4ea',
+    200: '#8aaad4',
+    300: '#5a7db5',
+    400: '#3d5f96',
+    500: '#2d4875',
+    600: '#243a5e',
+    700: '#1c2e4a',
+    800: '#132035',
+    900: '#0d1624',
+    950: '#080f1a',
   };
-  for (const [step, hex] of Object.entries(expected)) {
+  for (const step of numericKeys(expected)) {
+    const hex = expected[step];
     it(`primary-${step} === ${hex}`, () => {
-      expect(colors.primary[step as keyof typeof colors.primary]).toBe(hex);
+      expect(colors.primary[step]).toBe(hex);
     });
   }
 });
 
 describe('Color tokens — Accent (Copper)', () => {
-  const expected: Record<string, string> = {
-    '100': '#f8dcc8',
-    '200': '#f0b080',
-    '300': '#e8924e',
-    '400': '#d97030',
-    '500': '#c55e15',
-    '600': '#a84c10',
-    '700': '#8c3e0a',
+  const expected: Record<keyof typeof colors.accent, string> = {
+    100: '#f8dcc8',
+    200: '#f0b080',
+    300: '#e8924e',
+    400: '#d97030',
+    500: '#c55e15',
+    600: '#a84c10',
+    700: '#8c3e0a',
   };
-  for (const [step, hex] of Object.entries(expected)) {
+  for (const step of numericKeys(expected)) {
+    const hex = expected[step];
     it(`accent-${step} === ${hex}`, () => {
-      expect(colors.accent[step as keyof typeof colors.accent]).toBe(hex);
+      expect(colors.accent[step]).toBe(hex);
     });
   }
   it('accent does NOT have cyan/violet/emerald keys', () => {
@@ -77,21 +87,23 @@ describe('Color tokens — Accent (Copper)', () => {
 });
 
 describe('Color tokens — Neutral (Cream/Slate)', () => {
-  const expected: Record<string, string> = {
-    '100': '#f5ede0',
-    '200': '#ede0cc',
-    '300': '#d4c4a8',
-    '400': '#94a3b8',
-    '500': '#64748b',
-    '600': '#475569',
-    '700': '#334155',
-    '800': '#1e293b',
-    '900': '#0f172a',
-    '950': '#080d18',
+  const expected: Record<keyof typeof colors.neutral, string> = {
+    100: '#f5ede0',
+    200: '#ede0cc',
+    300: '#d4c4a8',
+    400: '#94a3b8',
+    500: '#64748b',
+    600: '#475569',
+    700: '#334155',
+    800: '#1e293b',
+    850: '#172032',
+    900: '#0f172a',
+    950: '#080d18',
   };
-  for (const [step, hex] of Object.entries(expected)) {
+  for (const step of numericKeys(expected)) {
+    const hex = expected[step];
     it(`neutral-${step} === ${hex}`, () => {
-      expect(colors.neutral[step as keyof typeof colors.neutral]).toBe(hex);
+      expect(colors.neutral[step]).toBe(hex);
     });
   }
 });
