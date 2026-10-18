@@ -16,3 +16,12 @@ export type { StatusBadgeProps, StatusValue, StatusTone } from './components/Sta
 
 export { Drawer } from './components/Drawer';
 export type { DrawerProps } from './components/Drawer';
+
+export { DataTable } from './components/DataTable';
+export type {
+  DataTableColumn,
+  DataTableProps,
+  DataTableSort,
+  DataTableSortDirection,
+  DataTableSortValue,
+} from './components/DataTable';
