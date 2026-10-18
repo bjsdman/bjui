@@ -1,850 +1,381 @@
-# bjui Design System
-**Version:** 0.1.0-draft  
-**Date:** 2026-04-03  
-**Author:** Yuri (UI/UX Designer)  
-**Status:** Draft — held for bjui repo creation by Jimmy
+# bjui Design System — v2 (BMJ Strategies)
+
+**Version:** 2.0 — shipped in bjui v1.0.0 (`ee91824`)
+**Date:** 2026-04-29 (revised 2026-05-01; promoted to this repo 2026-10-17)
+**Author:** Yuri (UI/UX Designer); reconciled by Max (2026-05-01)
+**Status:** Live. The token source of truth is the code: `src/tailwind/tokens.css` and `src/tailwind/tokens/*.ts`. This document describes them; when the two disagree, fix whichever is wrong.
+**Supersedes:** v0.1.0-draft (indigo), kept at [`archive/design-system-v0.1.md`](archive/design-system-v0.1.md)
+
+> The planning record for this design (design handoff, decision log D1–D4, risks, testability review) lives in the homelab-vault `90-archive/projects/bmj-rebrand/`. References below to `design-reconciliation.md`, `testability-review.md` and `design_handoff/` point there.
 
 ---
 
-## Overview
+## 1. Overview
 
-This document is the authoritative design system spec for all UI products in the bjsdman homelab suite. It governs:
-- **bjui** — shared component library (`@bjsdman/bjui`)
-- **bjhomesite** — internal homelab dashboard
-- **bjlandingpage** — public-facing landing page
+This is the design system update for the BMJ Strategies visual identity. It governs all UI products in the `bjsdman` homelab suite — `bjui` (the shared component library), `bjhomesite`, and `bjlandingpage`. Visual identity, token values, component behavior, and page layouts defined here are locked. Per-project drift is not permitted.
 
-Visual identity, token values, component behavior, and page layouts defined here are locked once established. Per-project drift is not permitted. Changes go through a design system update — not a one-off override.
+This is a **holistic update**, not a per-project override. v0.1's indigo/slate dark theme is retired in full.
+---
+
+## 2. Brand foundations
+
+The BMJ Strategies brand identity centers on a deep, hand-lettered burnt-orange script wordmark, presented against rich darks (navy / charcoal) with cream as the warm text surface. The voice is grounded, confident, established — not playful, not hyper-modern. The rebrand should feel **like a finished piece of finely-printed stationery**, not a SaaS dashboard.
+
+**Theme direction (decided 2026-05-01 — see design-reconciliation.md D1):** The design handoff delivers a dark-only implementation. The new theme is **dark/navy as the single mode** — `#080f1a` as page background, cream-toned neutrals for text. Light mode and a theme toggle are deferred to a future release; the hi-fi mockup in `brianmjones.html` is entirely dark and has no light-mode design authority behind it.
 
 ---
 
-## 1. Design Tokens
+## 3. Design tokens
 
-### 1.1 Color Palette
+The canonical token values are in `src/tailwind/tokens.css` (Tailwind v4 `@theme`) and mirrored in `src/tailwind/tokens/*.ts` for the Tailwind preset. `src/test/tokens.spec.ts` locks the palette and contrast ratios. This section documents the token families and their usage.
 
-#### Brand / Primary
+### 3.1 Color — Primary (Navy)
+
+Navy is the primary surface color. Replaces the old indigo primary and the separate `navy-*` family.
+
 | Token | Hex | Usage |
 |---|---|---|
-| `color-primary-50` | `#eef2ff` | Light backgrounds, hover states |
-| `color-primary-100` | `#e0e7ff` | Subtle fills, selected state bg |
-| `color-primary-200` | `#c7d2fe` | Borders, dividers on light bg |
-| `color-primary-300` | `#a5b4fc` | Inactive icons, secondary labels |
-| `color-primary-400` | `#818cf8` | Hover on interactive elements |
-| `color-primary-500` | `#6366f1` | **Primary brand color** — buttons, links, focus rings |
-| `color-primary-600` | `#4f46e5` | Pressed/active state |
-| `color-primary-700` | `#4338ca` | Dark backgrounds, nav active |
-| `color-primary-800` | `#3730a3` | Deep brand, footer accents |
-| `color-primary-900` | `#312e81` | High-contrast dark brand |
-| `color-primary-950` | `#1e1b4b` | Near-black brand, dark theme bg |
+| `color-primary-50`  | `#e8f0f7` | Lightest tint |
+| `color-primary-100` | `#c3d4ea` | Light text on dark backgrounds |
+| `color-primary-200` | `#8aaad4` | Disabled text |
+| `color-primary-300` | `#5a7db5` | Placeholder text on dark |
+| `color-primary-400` | `#3d5f96` | Muted icon fill |
+| `color-primary-500` | `#2d4875` | Mid-tone, active nav underlines |
+| `color-primary-600` | `#243a5e` | Subtle borders, inactive states |
+| `color-primary-700` | `#1c2e4a` | **Borders, dividers** |
+| `color-primary-800` | `#132035` | **Elevated surface, hover state bg** |
+| `color-primary-900` | `#0d1624` | **Card / surface background** |
+| `color-primary-950` | `#080f1a` | **Page background (darkest)** |
 
-#### Neutrals
+### 3.2 Color — Accent (Copper)
+
+Copper/orange is the single brand accent. Used for CTA buttons, links, highlights, and hover states. Do not expand its usage beyond these roles.
+
 | Token | Hex | Usage |
 |---|---|---|
-| `color-neutral-0` | `#ffffff` | White — light surfaces |
-| `color-neutral-50` | `#f8fafc` | App background (light mode) |
-| `color-neutral-100` | `#f1f5f9` | Card backgrounds (light) |
-| `color-neutral-200` | `#e2e8f0` | Borders, dividers |
-| `color-neutral-300` | `#cbd5e1` | Disabled borders |
-| `color-neutral-400` | `#94a3b8` | Placeholder text, disabled icons |
-| `color-neutral-500` | `#64748b` | Secondary text |
-| `color-neutral-600` | `#475569` | Body text (light mode) |
-| `color-neutral-700` | `#334155` | Headings (light mode) |
-| `color-neutral-800` | `#1e293b` | Card bg (dark mode), strong text |
-| `color-neutral-850` | `#172033` | Sidebar / panel bg (dark mode) |
-| `color-neutral-900` | `#0f172a` | App background (dark mode) |
-| `color-neutral-950` | `#080d18` | Deep dark — overlays, modals bg |
+| `color-accent-100` | `#f8dcc8` | Background tint for copper elements |
+| `color-accent-200` | `#f0b080` | Very light copper tint |
+| `color-accent-300` | `#e8924e` | Light copper, icon fills |
+| `color-accent-400` | `#d97030` | **Hover state, italic headline color** |
+| `color-accent-500` | `#c55e15` | **Primary accent — CTA buttons, links, highlights** |
+| `color-accent-600` | `#a84c10` | Hover state for copper elements |
+| `color-accent-700` | `#8c3e0a` | Dark copper, pressed state |
 
-#### Semantic Colors
+> Note on hex change: Yuri's original spec used `#A05C2E` (sampled from PPTX). The handoff used `#c45c14` (extracted from the actual logo PNG files); this was subsequently lightened to `#c55e15` to achieve strict WCAG AA 4.5:1 against `primary-950` (R4 closed 2026-05-02). The handoff value remains the authoritative source hue. See design-reconciliation.md D2.
+
+### 3.3 Color — Neutral (Cream/Slate text)
+
+Warm cream-leaning neutrals for text on dark surfaces. Replaces the separate `cream-*` and `slate-*` families from the original spec.
+
 | Token | Hex | Usage |
 |---|---|---|
-| `color-success-400` | `#4ade80` | Online status, success states |
-| `color-success-500` | `#22c55e` | Success button, success text dark |
-| `color-success-900` | `#14532d` | Success bg (dark mode) |
-| `color-warning-400` | `#facc15` | Degraded status, warnings |
-| `color-warning-500` | `#eab308` | Warning icon, warning text |
-| `color-warning-900` | `#713f12` | Warning bg (dark mode) |
-| `color-error-400` | `#f87171` | Offline status, error states |
-| `color-error-500` | `#ef4444` | Error text, destructive actions |
-| `color-error-900` | `#7f1d1d` | Error bg (dark mode) |
-| `color-info-400` | `#60a5fa` | Unknown/checking status, info |
-| `color-info-500` | `#3b82f6` | Info text, neutral badges |
-| `color-info-900` | `#1e3a5f` | Info bg (dark mode) |
+| `color-neutral-100` | `#f5ede0` | **Primary text on dark backgrounds** |
+| `color-neutral-200` | `#ede0cc` | Secondary text |
+| `color-neutral-300` | `#d4c4a8` | Tertiary text |
+| `color-neutral-400` | `#94a3b8` | Muted text, meta, labels |
+| `color-neutral-500` | `#64748b` | Faint text, placeholders |
+| `color-neutral-600` | `#475569` | Disabled text |
+| `color-neutral-700` | `#334155` | Subtle on-light borders |
+| `color-neutral-800` | `#1e293b` | Dark borders |
+| `color-neutral-850` | `#172032` | Dark surface step between 800 and 900 |
+| `color-neutral-900` | `#0f172a` | Dark surface alt |
+| `color-neutral-950` | `#080d18` | Darkest neutral |
 
-#### Accent / Monospace Highlight
+### 3.4 Color — Status (unchanged)
+
+Success, warning, error, and info scales are preserved from v0.1. No changes to hues or values.
+
 | Token | Hex | Usage |
 |---|---|---|
-| `color-accent-cyan` | `#22d3ee` | Metric values, code, terminal output |
-| `color-accent-violet` | `#a78bfa` | Hover accents, decorative highlights |
-| `color-accent-emerald` | `#34d399` | Positive delta indicators |
+| `color-success-400` | `#5BA86F` | Online status, success states |
+| `color-success-500` | `#3F8754` | Success button, success text |
+| `color-success-700` | `#285E38` | Success bg tint |
+| `color-warning-400` | `#D6A24A` | Degraded / warning amber |
+| `color-warning-500` | `#B5832D` | Warning button, warning text |
+| `color-warning-700` | `#7A5417` | Warning bg tint |
+| `color-error-400`   | `#C9554A` | Offline / error |
+| `color-error-500`   | `#A33C32` | Destructive button, error text |
+| `color-error-700`   | `#6E261E` | Error bg tint |
+| `color-info-400`    | `#5378A8` | Info, neutral notice |
+| `color-info-500`    | `#3A5A85` | Info button, link variant |
+| `color-info-700`    | `#22385A` | Info bg tint |
+| `color-{success,warning,error,info}-900` | `#14532d` / `#713f12` / `#7f1d1d` / `#1e3a5f` | Deep status backgrounds |
+
+> Status badge mapping (preserved from v0.1 contract): success → online, warning → degraded, error → offline, info → unknown/checking.
+
+### 3.5 Semantic CSS variables
+
+Defined on `:root` in `src/tailwind/tokens.css`:
 
----
-
-### 1.2 Typography
-
-#### Font Families
-```
-font-sans:   "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif
-font-mono:   "JetBrains Mono", "Fira Code", ui-monospace, "Cascadia Code", monospace
-```
-- **Inter** — primary UI font. Used for all headings, body, labels, buttons.
-- **JetBrains Mono** — used for status values, metrics, IP addresses, service URLs, code blocks, terminal output. This is the homelab accent — lean into it.
-
-#### Type Scale
-| Token | Size | Line Height | Weight | Usage |
-|---|---|---|---|---|
-| `text-xs` | 12px / 0.75rem | 1rem | 400 | Labels, captions, badge text |
-| `text-sm` | 14px / 0.875rem | 1.25rem | 400 | Secondary text, table cells, descriptions |
-| `text-base` | 16px / 1rem | 1.5rem | 400 | Body text, default |
-| `text-lg` | 18px / 1.125rem | 1.75rem | 500 | Card titles, section subheads |
-| `text-xl` | 20px / 1.25rem | 1.75rem | 600 | Component headings |
-| `text-2xl` | 24px / 1.5rem | 2rem | 600 | Page section titles |
-| `text-3xl` | 30px / 1.875rem | 2.25rem | 700 | Page headings |
-| `text-4xl` | 36px / 2.25rem | 2.5rem | 700 | Hero headings (landing page) |
-| `text-5xl` | 48px / 3rem | 1 | 800 | Display / hero (landing page only) |
-
-#### Font Weights
-| Token | Value | Usage |
-|---|---|---|
-| `font-normal` | 400 | Body, descriptions |
-| `font-medium` | 500 | Labels, nav items, UI elements |
-| `font-semibold` | 600 | Headings, card titles, buttons |
-| `font-bold` | 700 | Page titles, strong emphasis |
-| `font-extrabold` | 800 | Display/hero only |
-
-#### Monospace Usage Rules
-Use `font-mono` for:
-- IP addresses, ports, hostnames
-- Service URLs
-- Status metrics (uptime %, response time ms)
-- Version numbers
-- All `<code>` and `<pre>` blocks
-- StatusBadge text
-
----
-
-### 1.3 Spacing Scale
-
-Base unit: 4px (0.25rem)
-
-| Token | px | rem | Usage |
-|---|---|---|---|
-| `spacing-0` | 0 | 0 | — |
-| `spacing-0.5` | 2px | 0.125rem | Hairline gaps |
-| `spacing-1` | 4px | 0.25rem | Icon internal padding |
-| `spacing-1.5` | 6px | 0.375rem | Compact badge padding |
-| `spacing-2` | 8px | 0.5rem | Tight internal padding |
-| `spacing-3` | 12px | 0.75rem | Standard compact padding |
-| `spacing-4` | 16px | 1rem | Default element padding |
-| `spacing-5` | 20px | 1.25rem | Form field padding |
-| `spacing-6` | 24px | 1.5rem | Card internal padding |
-| `spacing-8` | 32px | 2rem | Section padding, card gaps |
-| `spacing-10` | 40px | 2.5rem | Large section gaps |
-| `spacing-12` | 48px | 3rem | Header height, hero padding |
-| `spacing-16` | 64px | 4rem | Page section separation |
-| `spacing-20` | 80px | 5rem | Hero vertical padding |
-| `spacing-24` | 96px | 6rem | Large hero separation |
-
-Grid gutter: `spacing-6` (24px) desktop, `spacing-4` (16px) mobile.  
-Page max-width: `1280px` (container-xl). Side padding: `spacing-6` desktop, `spacing-4` mobile.
-
----
-
-### 1.4 Border Radius
-| Token | Value | Usage |
-|---|---|---|
-| `rounded-none` | 0 | — |
-| `rounded-sm` | 2px | Subtle rounding, table cells |
-| `rounded` | 4px | Badges, tags, small elements |
-| `rounded-md` | 6px | Buttons, inputs |
-| `rounded-lg` | 8px | Cards, panels |
-| `rounded-xl` | 12px | Modal containers, large cards |
-| `rounded-2xl` | 16px | Hero containers |
-| `rounded-full` | 9999px | Status dot, avatar |
-
-Cards use `rounded-lg` (8px). Buttons use `rounded-md` (6px). Status dot uses `rounded-full`.
-
----
-
-### 1.5 Shadow Levels
-| Token | Value | Usage |
-|---|---|---|
-| `shadow-none` | none | Flat elements |
-| `shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle card lift |
-| `shadow` | `0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)` | Default card |
-| `shadow-md` | `0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05)` | Hover card state |
-| `shadow-lg` | `0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05)` | Modals, dropdowns |
-| `shadow-glow-primary` | `0 0 0 3px rgba(99,102,241,0.3)` | Focus ring |
-| `shadow-glow-success` | `0 0 8px rgba(34,197,94,0.4)` | Online service card accent |
-
-Dark mode: reduce shadow opacity by 50%, rely more on border-based definition.
-
----
-
-### 1.6 Z-Index Scale
-| Token | Value | Usage |
-|---|---|---|
-| `z-0` | 0 | Base |
-| `z-10` | 10 | Cards, interactive elements |
-| `z-20` | 20 | Dropdowns, tooltips |
-| `z-30` | 30 | Fixed nav, sticky header |
-| `z-40` | 40 | Modal overlay |
-| `z-50` | 50 | Modal content, toast notifications |
-
----
-
-## 2. Component Specs
-
-### 2.1 Header
-
-**Purpose:** Site-wide top navigation bar. Present on all pages of both bjhomesite and bjlandingpage. Responsive.
-
-#### Structure
-```
-[Logo/Wordmark]   [Nav Links]   [Right Actions: theme toggle, profile/status]
-```
-
-#### Props
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `siteName` | `string` | required | Displayed wordmark text |
-| `logoIcon` | `ReactNode` | optional | SVG icon left of wordmark |
-| `navItems` | `NavItem[]` | `[]` | Navigation links |
-| `rightSlot` | `ReactNode` | optional | Right side actions slot |
-| `sticky` | `boolean` | `true` | Whether header is position:sticky |
-| `transparent` | `boolean` | `false` | Transparent bg for hero overlay |
-
-#### NavItem type
-```ts
-type NavItem = {
-  label: string;
-  href: string;
-  active?: boolean;
-  external?: boolean;
-}
-```
-
-#### Visual Spec
-- **Height:** 64px (spacing-16) desktop, 56px mobile
-- **Background:** `color-neutral-900` dark / `color-neutral-0` light — never transparent unless `transparent=true`
-- **Border bottom:** 1px `color-neutral-800` (dark) / `color-neutral-200` (light)
-- **Logo:** `font-mono`, `font-semibold`, `text-lg`, `color-primary-400` — monospace wordmark reinforces homelab identity
-- **Nav links:** `text-sm`, `font-medium`, `color-neutral-400` default, `color-primary-400` active, `color-neutral-200` hover
-- **Active indicator:** 2px bottom border `color-primary-500` on active nav item
-- **Right slot:** icon buttons, 36x36px hit target, `rounded-md`
-- **Mobile:** hamburger menu at `<768px`, nav collapses to drawer/dropdown
-
-#### States
-- Default, hover (link), active (current page), focus (keyboard — `shadow-glow-primary`)
-- Sticky: adds `shadow-sm` when scrolled past 8px
-
-#### Accessibility
-- `<header>` landmark role
-- `<nav>` with `aria-label="Main navigation"`
-- Active item has `aria-current="page"`
-- Mobile menu button: `aria-expanded`, `aria-controls`
-
----
-
-### 2.2 Footer
-
-**Purpose:** Minimal bottom footer. Present on all pages. Functional, not decorative.
-
-#### Structure
-```
-[Left: copyright + site name]   [Center: links]   [Right: cluster status indicator]
-```
-
-#### Props
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `siteName` | `string` | required | — |
-| `links` | `FooterLink[]` | `[]` | Link groups |
-| `clusterStatus` | `'online' \| 'degraded' \| 'offline' \| 'unknown'` | optional | Drives right-side StatusBadge |
-| `year` | `number` | current year | Copyright year |
-
-#### Visual Spec
-- **Height:** auto, min 56px
-- **Background:** `color-neutral-950` dark / `color-neutral-100` light
-- **Top border:** 1px `color-neutral-800` (dark) / `color-neutral-200` (light)
-- **Text:** `text-xs`, `color-neutral-500`
-- **Links:** `color-neutral-400` hover `color-primary-400`, no underline
-- **Cluster status:** `StatusBadge` size=`sm`, label="Cluster", right-aligned. Font: `font-mono`.
-- **Padding:** `spacing-6` vertical, `spacing-8` horizontal
-
-#### Accessibility
-- `<footer>` landmark
-- Links have descriptive text (no "click here")
-
----
-
-### 2.3 PageLayout
-
-**Purpose:** Wraps every page. Composes Header + Footer + main content area. Handles consistent page structure.
-
-#### Props
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `children` | `ReactNode` | required | Main content |
-| `header` | `HeaderProps` | required | Passed through to Header |
-| `footer` | `FooterProps` | optional | Passed through to Footer |
-| `maxWidth` | `'sm' \| 'md' \| 'lg' \| 'xl' \| 'full'` | `'xl'` | Content max-width |
-| `padded` | `boolean` | `true` | Whether to apply horizontal page padding |
-| `className` | `string` | optional | Additional class on main |
-
-#### Max-width values
-| Value | CSS | px |
-|---|---|---|
-| `sm` | `max-w-2xl` | 672px |
-| `md` | `max-w-4xl` | 896px |
-| `lg` | `max-w-5xl` | 1024px |
-| `xl` | `max-w-7xl` | 1280px |
-| `full` | `max-w-full` | 100% |
-
-#### Visual Spec
-- **Layout:** flex-col, min-h-screen. Main grows to fill (`flex-1`).
-- **Background:** `color-neutral-900` (dark default)
-- **Main padding:** `spacing-8` top, `spacing-6` horizontal (desktop), `spacing-4` (mobile)
-- **Subtle texture option:** a 1px dot-grid pattern using `background-image` SVG at 5% opacity — optional, off by default, enabled via `texture` prop
-
----
-
-### 2.4 ServiceCard
-
-**Purpose:** Displays a single homelab service in the dashboard grid. The primary data display unit of bjhomesite.
-
-#### Props
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `name` | `string` | required | Service display name |
-| `description` | `string` | optional | Short description |
-| `url` | `string` | optional | Service URL (clickable) |
-| `status` | `StatusValue` | `'unknown'` | Current status — drives StatusBadge |
-| `icon` | `ReactNode` | optional | Service icon (SVG, 24x24) |
-| `category` | `string` | optional | Tag label (e.g. "Media", "Monitoring") |
-| `responseTime` | `number` | optional | Response time in ms |
-| `uptime` | `number` | optional | Uptime % (0–100) |
-| `lastChecked` | `Date` | optional | Last health-check timestamp |
-| `onClick` | `() => void` | optional | Card click handler |
-| `href` | `string` | optional | Wraps card in link if provided |
-
-#### Visual Spec
-- **Size:** flexible width (fits grid), min-height 140px
-- **Background:** `color-neutral-800` (dark) / `color-neutral-100` (light)
-- **Border:** 1px `color-neutral-700` default; `color-primary-700` on hover; `color-success-900` tint when status=online
-- **Border radius:** `rounded-lg` (8px)
-- **Shadow:** `shadow-sm` default, `shadow-md` on hover
-- **Hover:** border color shift, `shadow-md`, translate-y -1px (subtle lift)
-- **Padding:** `spacing-6` (24px) all sides
-- **Transition:** 150ms ease-out on border, shadow, transform
-
-#### Internal layout
-```
-┌─────────────────────────────────────────┐
-│  [Icon 32px]  [Name text-lg semibold]   │
-│               [Category tag text-xs]    │
-│                                         │
-│  [Description text-sm neutral-400]      │
-│                                         │
-│  ─────────────────────────────────────  │
-│  [StatusBadge]   [Response: 42ms mono]  │
-│  [URL text-xs mono neutral-400]         │
-└─────────────────────────────────────────┘
-```
-
-- **Name:** `text-lg`, `font-semibold`, `color-neutral-100`
-- **Description:** `text-sm`, `color-neutral-400`, max 2 lines (line-clamp-2)
-- **URL:** `text-xs`, `font-mono`, `color-neutral-500` — shown below status row, truncated
-- **Response time:** `text-xs`, `font-mono`, `color-accent-cyan`, right-aligned in status row
-- **Category tag:** `text-xs`, `font-medium`, `bg-neutral-700`, `color-neutral-300`, `rounded`, `px-2 py-0.5`
-- **Icon area:** 32x32px, `color-primary-400` default (passes through SVG currentColor)
-- **Divider:** 1px `color-neutral-700/50`
-
-#### States
-- Default
-- Hover (lift, border change)
-- Loading (skeleton — pulsing bg on all content areas)
-- Clicked / active (scale 0.99, instant)
-
-#### Accessibility
-- If `href` or `onClick`: wrap in `<a>` or `<button>` with full card as hit target
-- `aria-label` = `"${name} — ${status}"` if no description
-- Status conveyed via both color and text (not color-only)
-
----
-
-### 2.5 StatusBadge
-
-**Purpose:** Displays service health status. Used inside ServiceCard and Footer. Standalone-usable.
-
-#### Props
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `status` | `'online' \| 'offline' \| 'degraded' \| 'unknown'` | required | Status state |
-| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Badge size |
-| `showLabel` | `boolean` | `true` | Show/hide text label |
-| `showDot` | `boolean` | `true` | Show/hide status dot |
-| `label` | `string` | optional | Override default label text |
-| `pulse` | `boolean` | auto | Pulse animation on online status |
-
-#### Status values
-| Status | Dot color | Background | Text color | Default label |
-|---|---|---|---|---|
-| `online` | `color-success-400` | `color-success-900/30` | `color-success-400` | `ONLINE` |
-| `offline` | `color-error-400` | `color-error-900/30` | `color-error-400` | `OFFLINE` |
-| `degraded` | `color-warning-400` | `color-warning-900/30` | `color-warning-400` | `DEGRADED` |
-| `unknown` | `color-info-400` | `color-info-900/30` | `color-info-400` | `UNKNOWN` |
-
-#### Size spec
-| Size | Dot | Font | Padding | Height |
-|---|---|---|---|---|
-| `sm` | 6px | `text-xs` (11px) | `px-1.5 py-0.5` | 20px |
-| `md` | 8px | `text-xs` (12px) | `px-2 py-1` | 24px |
-| `lg` | 10px | `text-sm` (14px) | `px-3 py-1.5` | 32px |
-
-#### Visual Spec
-- **Font:** `font-mono`, `font-medium`, uppercase label text
-- **Border radius:** `rounded` (4px) for badge bg, `rounded-full` for dot
-- **Pulse animation:** online status only — dot pulses with `animate-ping` ring using `color-success-400/40`
-- **Dot:** filled circle, left of label if `showLabel=true`
-
-#### Accessibility
-- `role="status"` on badge element
-- `aria-label` = full status string (e.g. "Service status: online")
-- Color is supplemented by text and shape — never color-only
-
----
-
-## 3. Tailwind Preset Structure
-
-The `@bjsdman/bjui` package exports a Tailwind CSS preset. Consuming apps extend it rather than redefining tokens.
-
-### 3.1 Preset file structure in bjui repo
-```
-bjui/
-  tailwind/
-    preset.ts         ← main export
-    tokens/
-      colors.ts       ← all color token values
-      typography.ts   ← font families, size scale
-      spacing.ts      ← custom spacing extensions
-      shadows.ts      ← custom shadow values
-      animations.ts   ← custom keyframes + animations
-```
-
-### 3.2 preset.ts shape
-```ts
-import type { Config } from 'tailwindcss';
-import typography from '@tailwindcss/typography';
-import { colors } from './tokens/colors';
-import { fontFamily, fontSize } from './tokens/typography';
-import { boxShadow, keyframes, animation } from './tokens/shadows';
-
-const preset: Config = {
-  darkMode: 'class',
-  theme: {
-    extend: {
-      colors,
-      fontFamily,
-      fontSize,
-      boxShadow,
-      keyframes,
-      animation,
-      borderRadius: {
-        DEFAULT: '4px',
-      },
-    },
-  },
-  plugins: [typography],
-};
-
-export default preset;
-```
-
-### 3.3 How consuming apps use it
-```ts
-// bjhomesite/tailwind.config.ts
-import bjuiPreset from '@bjsdman/bjui/tailwind/preset';
-import type { Config } from 'tailwindcss';
-
-const config: Config = {
-  content: [
-    './src/**/*.{ts,tsx}',
-    './node_modules/@bjsdman/bjui/src/**/*.{ts,tsx}', // ← scan bjui components
-  ],
-  presets: [bjuiPreset],
-  theme: {
-    extend: {
-      // App-specific overrides only — not color/typography
-    },
-  },
-};
-
-export default config;
-```
-
-### 3.4 Dark mode strategy
-- `darkMode: 'class'` — the `dark` class is toggled on `<html>` element
-- All components use both light and dark variants: `bg-neutral-100 dark:bg-neutral-800`
-- Default render target is dark mode (homelab context)
-- bjlandingpage may default to light mode — both must work
-
----
-
-## 4. Visual Direction
-
-### 4.1 Aesthetic Statement
-
-The bjsdman homelab UI is **technical, clean, and fast**. It looks like it was built by someone who runs servers for fun — not corporate SaaS. It respects the user's intelligence and screen space.
-
-Concretely:
-- **Dark by default.** The primary environment is a dashboard you look at for long sessions. Dark backgrounds, carefully chosen contrast ratios.
-- **Monospace as accent.** `JetBrains Mono` appears for values that are "data" — IPs, uptime %, response times, URLs. This creates a clear visual language: "this is information, not UI copy."
-- **Indigo-primary palette.** Not green-hacker, not blue-enterprise. Indigo sits at the intersection of technical and refined.
-- **Minimal motion.** Transitions exist to orient, not entertain. 150ms ease-out. The pulse on the online status dot is the most animated thing on the page.
-- **Grid structure over decoration.** Service cards in clean grids. No hero gradients on the dashboard. Save the subtle background texture (dot grid) for empty states only.
-- **Status is the hero.** The most important information on the dashboard is whether services are up. StatusBadge is prominent, legible, and uses both color and text.
-- **Borders define space.** Cards are defined by a 1px border and a slight shadow, not heavy backgrounds. This keeps the UI feeling lightweight even when dense.
-
-### 4.2 What NOT to do
-- No gradient blobs, glassmorphism, or heavy blur effects on the dashboard
-- No full-bleed hero images on bjhomesite
-- No rounded-2xl on cards (too bubbly)
-- No bright white backgrounds on the dashboard
-- No icon-only status (always pair with text label)
-- No Comic Sans, system serif, or web fonts with licensing restrictions
-
-### 4.3 Landing page exception
-bjlandingpage is public-facing and can use more expressive visual elements:
-- Light mode default with dark mode support
-- Hero section may use a subtle gradient (indigo to slate, max 15% opacity overlay on dark bg)
-- Larger type scale for marketing copy
-- Still uses the same design tokens — no custom colors
-
----
-
-## 5. Wireframe-Level Page Layouts
-
-### 5.1 bjhomesite — Main Dashboard
-
-**Route:** `/` (authenticated)  
-**Grid:** 12-column, spacing-6 gap
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  HEADER: [logo "homelab"] [Dashboard | Services | Admin] [...]  │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  ┌─ STATUS SUMMARY BAR ────────────────────────────────────────┐ │
-│  │  ● 12 Online   ⚠ 1 Degraded   ✕ 0 Offline   ? 2 Unknown   │ │
-│  │  Last updated: 14s ago [font-mono text-xs]                  │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                                                                   │
-│  [Category filter tabs: All | Media | Monitoring | Network | +] │
-│                                                                   │
-│  ┌─ SERVICE GRID (auto-fill, min 280px, gap-6) ────────────────┐ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │ │
-│  │  │ ServiceCard │ │ ServiceCard │ │ ServiceCard │  ...       │ │
-│  │  │             │ │             │ │             │            │ │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘           │ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │ │
-│  │  │ ServiceCard │ │ ServiceCard │ │ ServiceCard │  ...       │ │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                                                                   │
-├─────────────────────────────────────────────────────────────────┤
-│  FOOTER: [© 2026 bjsdman]  [GitHub]  [Cluster: ● ONLINE]       │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**Status Summary Bar:**
-- Background: `color-neutral-800`, border `color-neutral-700`, `rounded-lg`, `px-6 py-3`
-- Each counter: `font-mono text-sm` with status dot
-- "Last updated" timestamp: `font-mono text-xs color-neutral-500`
-- Auto-refreshes — timestamp updates in place
-
-**Category Filter Tabs:**
-- Horizontal scrollable on mobile
-- Active tab: `color-primary-500` underline + text, bg: `color-neutral-800`
-- Inactive: `color-neutral-400`
-- "+" is an admin shortcut (add service) — only visible to authenticated admin
-
-**Service Grid:**
-- CSS Grid: `grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))`
-- Desktop: typically 3–4 cards wide
-- Tablet (768px): 2 columns
-- Mobile (480px): 1 column
-
-**Empty State (no services in category):**
-- Centered text: "No services in this category"
-- Subtle dot-grid background texture
-- "Add Service" button if admin
-
----
-
-### 5.2 bjhomesite — Admin UI
-
-**Route:** `/admin` (no auth — accepted risk, documented in Rex's security review)  
-**Layout:** Sidebar + main content
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  HEADER                                                          │
-├──────────────────┬──────────────────────────────────────────────┤
-│  SIDEBAR         │  MAIN CONTENT                                 │
-│  (240px)         │                                               │
-│  ┌────────────┐  │  ┌─ PAGE TITLE ───────────────────────────┐  │
-│  │ ▸ Services │  │  │  Service Management                     │  │
-│  │ ▸ Categor. │  │  └─────────────────────────────────────────┘  │
-│  │ ▸ Settings │  │                                               │
-│  │            │  │  [+ Add Service]  [Search: ________]         │
-│  │            │  │                                               │
-│  │            │  │  ┌─ SERVICE TABLE ─────────────────────────┐ │
-│  │            │  │  │ Name     Status   URL        Category    │ │
-│  │            │  │  │ ──────────────────────────────────────── │ │
-│  │            │  │  │ Jellyfin ● ONLINE /jellyfin  Media  [✎][✕]│
-│  │            │  │  │ Seerr    ● ONLINE /seerr     Media  [✎][✕]│
-│  │            │  │  │ Grafana  ⚠ DEGRAD /grafana   Monitor[✎][✕]│
-│  │            │  │  └─────────────────────────────────────────┘ │
-│  └────────────┘  │                                               │
-│                  │  ─── divider ───                              │
-│                  │                                               │
-│                  │  ┌─ ADD/EDIT SERVICE FORM ─────────────────┐ │
-│                  │  │  Service Name: [________________]        │ │
-│                  │  │  URL:          [________________]        │ │
-│                  │  │  Description:  [________________]        │ │
-│                  │  │  Category:     [dropdown ▼]              │ │
-│                  │  │  Icon:         [file upload / URL]       │ │
-│                  │  │                                           │ │
-│                  │  │  ── Credentials (optional) ──            │ │
-│                  │  │  Username:     [________________]        │ │
-│                  │  │  Password:     [••••••••] [show]         │ │
-│                  │  │  Notes:        [textarea]                │ │
-│                  │  │                                           │ │
-│                  │  │  [Cancel]  [Save Service]                │ │
-│                  │  └─────────────────────────────────────────┘ │
-└──────────────────┴──────────────────────────────────────────────┘
-```
-
-**Sidebar:**
-- Width: 240px fixed desktop, collapsible on tablet, hidden (hamburger) on mobile
-- Background: `color-neutral-850`
-- Border right: 1px `color-neutral-700`
-- Nav items: `text-sm font-medium`, left-padded `px-4 py-2`
-- Active: `bg-neutral-800 color-primary-400 border-l-2 border-primary-500`
-
-**Service Table:**
-- `text-sm`, alternating row bg: transparent / `color-neutral-800/30`
-- Status column: `StatusBadge` size=`sm`
-- URL column: `font-mono text-xs color-neutral-400`
-- Edit/delete actions: icon buttons, right-aligned
-
-**Add/Edit Form:**
-- Inline below table (slide-in or accordion on mobile)
-- Or: modal on desktop — design decision deferred to Jimmy; both valid
-- Credential fields: password field has show/hide toggle
-- Form uses same spacing/input tokens as rest of system
-
-**Credential Config Panel:**
-- Displayed inline in the form when "has credentials" is checked
-- Password stored encrypted (see Rex's review for encryption requirements)
-- "View credential" action exists but is audit-logged (future phase)
-
----
-
-### 5.3 bjlandingpage — Home / Landing Page
-
-**Route:** `/`  
-**Mode:** Light default (dark mode available)
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  HEADER: [logo] [About | Contact]  [→ Dashboard (internal)]    │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  ┌─ HERO ─────────────────────────────────────────────────────┐ │
-│  │                                                              │ │
-│  │         Running my own internet.                            │ │
-│  │         (text-5xl font-extrabold, max-w-3xl)               │ │
-│  │                                                              │ │
-│  │  Self-hosted infrastructure for media, monitoring,         │ │
-│  │  and automation. Built on Kubernetes.                       │ │
-│  │  (text-xl color-neutral-500, max-w-2xl)                    │ │
-│  │                                                              │ │
-│  │  [View Services →]  [About]                                │ │
-│  │  (primary btn)      (ghost btn)                             │ │
-│  │                                                              │ │
-│  │  Subtle: dot-grid pattern bg, indigo gradient at top edge  │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                                                                   │
-│  ┌─ SERVICES OVERVIEW ────────────────────────────────────────┐ │
-│  │  "What's running"  (text-2xl font-bold)                     │ │
-│  │                                                              │ │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐      │ │
-│  │  │ Jellyfin │ │  Seerr   │ │ Grafana  │ │Mattermost│      │ │
-│  │  │ [icon]   │ │ [icon]   │ │ [icon]   │ │ [icon]   │      │ │
-│  │  │ Media    │ │ Media    │ │ Monitor  │ │   Chat   │      │ │
-│  │  │ ● Online │ │ ● Online │ │ ● Online │ │ ● Online │      │ │
-│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘      │ │
-│  │  (Simplified ServiceCard variant — no description, URL)    │ │
-│  │  4-column grid desktop, 2 tablet, 1 mobile                 │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                                                                   │
-│  ┌─ HOMELAB PITCH ─────────────────────────────────────────────┐ │
-│  │  3-column feature highlights:                               │ │
-│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐             │ │
-│  │  │ [icon]     │ │ [icon]     │ │ [icon]     │             │ │
-│  │  │ No cloud   │ │ Always on  │ │ Open stack │             │ │
-│  │  │ depend.    │ │ HA cluster │ │ K8s + FOSS │             │ │
-│  │  │ (text-sm)  │ │ (text-sm)  │ │ (text-sm)  │             │ │
-│  │  └────────────┘ └────────────┘ └────────────┘             │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                                                                   │
-├─────────────────────────────────────────────────────────────────┤
-│  FOOTER: [© 2026 bjsdman] [GitHub] [About] [Contact]           │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**Hero:**
-- Vertical padding: `py-20` (80px) desktop, `py-12` (48px) mobile
-- Max-width content: `max-w-3xl` for heading, `max-w-2xl` for subtext
-- CTA buttons: `rounded-md`, primary filled + ghost variant
-- Background: `color-neutral-50` light, no full-bleed image. Optional: very subtle radial gradient `from-primary-100 to-transparent` at top-left, 20% opacity max.
-
-**Services Overview:**
-- Simplified ServiceCard: icon + name + category + StatusBadge only (no description, no URL)
-- `ServiceCard` variant prop `compact={true}` — Jimmy implements as a variant, not a new component
-
----
-
-### 5.4 bjlandingpage — About Page
-
-**Route:** `/about`
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  HEADER                                                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  ┌─ PAGE HEADER ───────────────────────────────────────────────┐ │
-│  │  About  (text-3xl font-bold)                                │ │
-│  │  The homelab behind bjsdman.  (text-lg color-neutral-500)  │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                                                                   │
-│  ┌─ TWO-COLUMN LAYOUT (8/4 split) ────────────────────────────┐ │
-│  │  LEFT (8 cols):                                             │ │
-│  │  Narrative text — who runs this, why, what's interesting.  │ │
-│  │  text-base, max-w-prose, proper line-height.               │ │
-│  │  @tailwindcss/typography prose class applied.              │ │
-│  │                                                              │ │
-│  │  RIGHT (4 cols):                                            │ │
-│  │  ┌────────────────────────┐                                │ │
-│  │  │  CLUSTER SPEC CARD     │                                │ │
-│  │  │  Nodes: 3              │                                │ │
-│  │  │  K8s: v1.28 [mono]    │                                │ │
-│  │  │  CNI: Cilium [mono]   │                                │ │
-│  │  │  Storage: Longhorn    │                                │ │
-│  │  │  LB: MetalLB          │                                │ │
-│  │  └────────────────────────┘                                │ │
-│  │  Spec card: font-mono for values, neutral-800 bg card      │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                                                                   │
-├─────────────────────────────────────────────────────────────────┤
-│  FOOTER                                                          │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**Responsive:** On mobile, right column (spec card) moves above the narrative text.
-
----
-
-### 5.5 bjlandingpage — Contact Page
-
-**Route:** `/contact`
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  HEADER                                                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  ┌─ PAGE HEADER ───────────────────────────────────────────────┐ │
-│  │  Contact  (text-3xl font-bold)                              │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                                                                   │
-│  ┌─ CENTERED FORM (max-w-lg centered) ────────────────────────┐ │
-│  │                                                              │ │
-│  │  Name:     [_________________________________]              │ │
-│  │  Email:    [_________________________________]              │ │
-│  │  Subject:  [_________________________________]              │ │
-│  │  Message:  [                                 ]              │ │
-│  │            [                  textarea 4 rows]              │ │
-│  │                                                              │ │
-│  │  reCAPTCHA or honeypot field (implementation TBD)          │ │
-│  │                                                              │ │
-│  │           [Send Message →]  (primary button)               │ │
-│  │                                                              │ │
-│  │  ── Or reach me at: ──                                      │ │
-│  │  GitHub: github.com/bjsdman  (link, font-mono)             │ │
-│  │  Email:  bjsdman@gmail.com   (link, font-mono)             │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                                                                   │
-├─────────────────────────────────────────────────────────────────┤
-│  FOOTER                                                          │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**Form inputs:**
-- Height: 40px (text-sm), `rounded-md`, `border color-neutral-300 dark:border-neutral-600`
-- Focus ring: `shadow-glow-primary`, border `color-primary-500`
-- Background: `color-neutral-0 dark:bg-neutral-800`
-- Submit button: full-width on mobile
-
-**Contact form backend:** Not in scope for this design system doc. Implementation note for Jimmy: contact form action should be a Next.js server action or API route — no client-side email library.
-
----
-
-## 6. Responsive Breakpoints
-
-Standard Tailwind breakpoints — no customization needed:
-| Breakpoint | Min-width | Notes |
-|---|---|---|
-| `sm` | 640px | — |
-| `md` | 768px | Tablet — 2-col grids |
-| `lg` | 1024px | Desktop — full layouts |
-| `xl` | 1280px | Wide desktop |
-| `2xl` | 1536px | — |
-
-Mobile-first approach. All components specify mobile layout as default, then `md:` / `lg:` overrides.
-
----
-
-## 7. Animation & Motion
-
-**Principle:** Motion for orientation, not decoration.
-
-| Token | Value | Usage |
-|---|---|---|
-| `transition-default` | `150ms ease-out` | Card hover, button hover |
-| `transition-slow` | `300ms ease-out` | Panel open/close, mobile nav |
-| `animate-pulse-dot` | custom ping keyframe | StatusBadge online dot |
-| `animate-skeleton` | pulse 1.5s ease-in-out infinite | Loading skeleton |
-
-Custom keyframe for ping (already in Tailwind as `animate-ping`):
 ```css
-@keyframes ping {
-  75%, 100% { transform: scale(2); opacity: 0; }
+:root {
+  --color-bg:            theme('colors.primary.950');  /* #080f1a */
+  --color-surface:       theme('colors.primary.900');  /* #0d1624 */
+  --color-surface-2:     theme('colors.primary.800');  /* #132035 */
+  --color-border:        theme('colors.primary.700');  /* #1c2e4a */
+  --color-border-subtle: theme('colors.primary.600');  /* #243a5e */
+  --color-text:          theme('colors.neutral.100');  /* #f5ede0 */
+  --color-text-muted:    theme('colors.neutral.400');  /* #94a3b8 */
+  --color-text-faint:    theme('colors.neutral.500');  /* #64748b */
+  --color-accent:        theme('colors.accent.500');   /* #c55e15 */
+  --color-accent-hi:     theme('colors.accent.400');   /* #d97030 */
+  --color-accent-dark:   theme('colors.accent.600');   /* #a84c10 */
 }
 ```
 
+### 3.6 Removed accents
+
+v0.1's `color-accent-cyan`, `color-accent-violet`, `color-accent-emerald` are removed. The brand intentionally restricts accent use to copper (`accent-*`) only. Decorative accents that don't carry semantic meaning should be omitted, not invented.
+
+### 3.7 Typography
+
+The brand wordmark is hand-lettered script — used **only** as the logo asset (PNG), never as UI typography.
+
+UI typography stack **(updated from original spec — see design-reconciliation.md D3):**
+
+| Family | Stack | Usage |
+|---|---|---|
+| `font-sans` / `font-ui` | `Outfit, ui-sans-serif, system-ui, sans-serif` | All UI text, body, labels, nav |
+| `font-display` | `'DM Serif Display', ui-serif, Georgia, serif` | Headlines (h1, h2, h3), hero text |
+| `font-mono` | `JetBrains Mono, Fira Code, ui-monospace, monospace` | Code, terminal output, metric values |
+
+Both Outfit and DM Serif Display are Google Fonts. Import:
+
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+```
+
+> Inter is no longer used in v2.0. This supersedes the "Inter locked" statement in the original draft. See design-reconciliation.md D3.
+
+#### Type scale (from handoff mockup)
+
+| Role | Class | Size | Weight | Font |
+|---|---|---|---|---|
+| Hero headline | `font-display text-[clamp(2.8rem,5.5vw,5rem)]` | fluid | 400 | DM Serif Display |
+| Section title | `font-display text-[clamp(2rem,3.5vw,3rem)]` | fluid | 400 | DM Serif Display |
+| About title | `font-display text-[clamp(2rem,3vw,2.6rem)]` | fluid | 400 | DM Serif Display |
+| Body | `text-base` | 1rem | 400 | Outfit, line-height 1.75 |
+| Eyebrow/label | `text-[0.75rem] font-semibold tracking-[0.14em] uppercase` | 0.75rem | 600 | Outfit |
+| Nav links | `text-sm font-medium tracking-[0.06em] uppercase` | 0.875rem | 500 | Outfit |
+| Service name | `text-[1.1rem] font-semibold` | 1.1rem | 600 | Outfit |
+| Footer copy | `text-[0.8rem]` | 0.8rem | 400 | Outfit |
+
+#### Tracking and leading tokens
+
+| Token | Value | | Token | Value |
+|---|---|---|---|---|
+| `tracking-eyebrow` | `0.14em` | | `leading-heading` | `1.08` |
+| `tracking-label` | `0.18em` | | `leading-body` | `1.75` |
+| `tracking-nav` | `0.06em` | | `leading-body-lg` | `1.80` |
+| `tracking-btn` | `0.04em` | | `leading-loose` | `1.65` |
+| `tracking-form` | `0.10em` | | | |
+
+Font-size tokens `xs`–`5xl` follow the Tailwind default scale (0.75rem–3rem).
+
+### 3.8 Spacing, radius, shadow
+
+Radius updated to match handoff (was: Tailwind defaults with minor overrides):
+
+| Token | Value | Usage |
+|---|---|---|
+| `rounded` (DEFAULT) | `6px` | Buttons, inputs, small elements |
+| `rounded-lg` | `12px` | Cards, service grid container |
+| `rounded-xl` | `16px` | Hero logo, large images |
+| `rounded-sm` / `rounded-md` / `rounded-2xl` / `rounded-full` | `4px` / `8px` / `20px` / `9999px` | Small chips, mid elements, large panels, pills |
+
+Spacing: Tailwind default scale unchanged.
+
+Brand shadows (`shadow-sm`/`DEFAULT`/`md`/`lg` are the Tailwind defaults):
+
+| Token | Value | Usage |
+|---|---|---|
+| `shadow-logo` | `0 0 0 1px rgba(197,94,21,0.25), 0 24px 80px rgba(197,94,21,0.20), 0 8px 32px rgba(0,0,0,0.50)` | Hero logo image |
+| `shadow-card` | `0 4px 24px rgba(0,0,0,0.3)` | Cards |
+| `shadow-card-lg` | `0 8px 40px rgba(0,0,0,0.4)` | Elevated / hovered cards |
+| `shadow-copper` | `0 0 24px rgba(197,94,21,0.25)` | Copper glow elements |
+| `shadow-glow-copper` | `0 0 0 3px rgba(197,94,21,0.3)` | Copper focus/selection ring |
+| `shadow-glow-success` | `0 0 8px rgba(91,168,111,0.4)` | Online status dot glow |
+
+### 3.9 Animations
+
+| Token | Value | Usage |
+|---|---|---|
+| `animate-ping` | `ping 1s cubic-bezier(0,0,0.2,1) infinite` | Live status dot |
+| `animate-pulse-subtle` | `pulse-subtle 2s ease-in-out infinite` (opacity 1→0.5) | Checking / loading states |
+
+### 3.10 Focus rings
+
+| Token | Value | Usage |
+|---|---|---|
+| Focus visible | `outline: 2px solid accent-500; outline-offset: 2px` | All interactive elements |
+
 ---
 
-## 8. Open Questions / Flagged Items
+## 4. Theme
 
-1. **Contact form backend** — no decision on email service (Resend, Nodemailer, etc.). Flag to Brian before Jimmy implements contact page.
-2. **ServiceCard compact variant** — props interface TBD. Yuri recommends `variant="compact"` prop rather than a separate component. Confirm with Archie.
-3. **Authentication on bjhomesite** — dashboard is currently internal-only, admin has no auth. Rex documents this as accepted risk. If auth is added later, Header needs a user avatar / logout slot — the `rightSlot` prop handles this.
-4. **Cluster status in Footer** — Footer needs access to a status API endpoint. Coordinate with Archie on where this comes from (proxy API route).
-5. **Icon library** — not decided. Recommendation: `lucide-react` (MIT, tree-shakeable, consistent stroke style). Flag to Archie.
-6. **Font loading** — Inter and JetBrains Mono via `next/font` (Google Fonts + self-hosted fallback). Jimmy to implement in PageLayout.
+**Single dark theme (decided 2026-05-01 — see design-reconciliation.md D1).**
+
+Light mode and a theme toggle are not part of v2.0. The dark theme below is the only supported mode.
+
+| Surface | Token | Hex |
+|---|---|---|
+| `--color-bg` / page background | `primary-950` | `#080f1a` |
+| `--color-surface` / card bg | `primary-900` | `#0d1624` |
+| `--color-surface-2` / elevated bg | `primary-800` | `#132035` |
+| `--color-border` | `primary-700` | `#1c2e4a` |
+| `--color-border-subtle` | `primary-600` | `#243a5e` |
+| `--color-text` | `neutral-100` | `#f5ede0` |
+| `--color-text-muted` | `neutral-400` | `#94a3b8` |
+| `--color-text-faint` | `neutral-500` | `#64748b` |
+| `--color-accent` | `accent-500` | `#c55e15` |
+| `--color-accent-hi` | `accent-400` | `#d97030` |
+
+Both consumer apps: `<body class="bg-primary-950 text-neutral-100 font-sans antialiased">`. The `<html className="dark">` approach is replaced by direct token usage — there is no `darkMode: 'class'` toggle needed because dark is the only mode.
 
 ---
 
-*Document status: DRAFT. Held for bjui repo creation. Commit target: `bjsdman/bjui/docs/design-system.md`*
+## 5. Components — variant deltas from v0.1
+
+Components retain their existing API. Only visual treatment changes.
+
+### 5.1 Header
+
+- Background: `rgba(8, 15, 26, 0.88)` with `backdrop-filter: blur(16px)` (frosted nav)
+- Fixed height: `68px`
+- Border-bottom: `1px solid rgba(28, 46, 74, 0.5)` (= `primary-700` at 50%)
+- Brand logo: `ScriptLogoBlueLetterOrangeEdgeSlateBack.png`, height `40px`
+- Nav links: `text-neutral-400`, hover `text-neutral-100` with `accent-500` underline slide-in
+- CTA button: border `rgba(197,94,21,0.4)`, text `accent-500`, hover bg `rgba(197,94,21,0.12)`
+
+> Theme-toggle button removed from scope for v2.0.
+
+### 5.2 Footer
+
+- Background: `primary-950`
+- Border-top: `primary-700`
+- Text: `neutral-500`
+- Logo: `ScriptLogoBlueLetterOrangeEdgeSlateBack.png`, height `28px`, opacity `0.7`
+- Copyright: `"© 2026 Brian M. Jones"`, `text-[0.8rem] text-neutral-500`
+- Links: `text-neutral-500`, hover `accent-500`
+
+### 5.3 PageLayout
+
+- Page background: `primary-950`
+- Max-width content rail: responsive with `clamp(24px, 6vw, 100px)` horizontal padding
+- Vertical rhythm: `100px` top+bottom padding per major section
+- No structural change to component API
+
+### 5.4 ServiceCard
+
+- Background: `primary-900`
+- Border: `1px solid primary-700`
+- Padding: `36px 32px`
+- Radius: `12px`
+- Hover: bg `primary-800`, border `rgba(197,94,21,0.35)`, `translateY(-2px)`
+- Top accent bar: `2px` gradient `accent-600 → accent-400`, `scaleX 0→1` on hover
+- Icon container: `44×44px`, bg `rgba(197,94,21,0.12)`, radius `10px`, color `accent-500`
+- Service name: `text-neutral-100`
+- Description: `text-neutral-400`, line-height 1.65
+- Link: `text-accent-500`, arrow, gap animates on hover
+
+### 5.5 StatusBadge
+
+- Online: `color-success-500` text on `color-success-400` 12% alpha bg (CSS: `background-color: rgb(from theme(colors.success-400) r g b / 0.12)`)
+- Degraded: `color-warning-500` text on `color-warning-400` 12% alpha bg
+- Offline: `color-error-500` text on `color-error-400` 12% alpha bg
+- Unknown / Checking: `color-info-500` text on `color-info-400` 12% alpha bg
+- Neutral badge: `primary-700` bg, `neutral-400` text
+- Icon dot: solid color, 6px diameter
+- 4px gap between dot and label, 8px horizontal padding, 2px vertical padding, radius `full`
+
+### 5.6 Drawer
+
+- Background: `primary-900`
+- Border: `primary-700`
+- Overlay backdrop: `rgba(8,15,26,0.7)`
+- Width: 360px on lg, 100vw on sm
+- Slide-in transition: 200ms ease-out
+
+---
+
+## 6. Logo & favicon assets
+
+**Asset source: PNG files. Masters are in `design_handoff/assets/` in the vault; the four logo PNGs are also committed at `src/assets/brand/` (not published in the npm package). SVG React components are deferred — see design-reconciliation.md D4.**
+
+| Asset | File | Usage |
+|---|---|---|
+| Nav logo, hero, footer | `ScriptLogoBlueLetterOrangeEdgeSlateBack.png` | Primary logo on dark backgrounds |
+| About section accent | `ScriptLogoOrangeLetterBlueEdgeSlateBack.png` | Orange-letter variant |
+| Favicon source | `CrammedArtsyLogoV1.png` | Monogram — crop/process for .ico and apple-touch-icon |
+| Light bg context | `ScriptLogoOutlined.png` | Reference only; not used in v2.0 UI |
+| Reference sheets | `LOGOS_V1_Stack.png`, `MarketingStuff.png`, `MarketingStuffLIghtBG.png` | Reference only |
+
+All PNGs are 1408×768 RGBA with transparent backgrounds.
+
+> Future cleanup task: obtain or produce clean SVG sources for the BMJ wordmark and monogram, then replace PNGs with SVG React components in `bjui/src/assets/brand/`. Not required for v2.0.
+
+Asset deployment: PNGs are copied into each consumer's `public/` folder. They are not shipped through the `bjui` package (too large for npm; Next.js metadata APIs prefer `public/`).
+
+---
+
+## 7. Accessibility
+
+WCAG 2.1 AA is the floor. **Updated for dark-only theme and new token values (2026-05-01).**
+
+Dark theme contrast ratios (verified for the single theme):
+
+| Pairing | Ratio | Result |
+|---|---|---|
+| `neutral-100` (`#f5ede0`) on `primary-950` (`#080f1a`) | ~15.8:1 | AAA |
+| `neutral-400` (`#94a3b8`) on `primary-950` (`#080f1a`) | ~6.1:1 | AA |
+| `accent-500` (`#c55e15`) on `primary-950` (`#080f1a`) | 4.56:1 | AA (normal text) — R4 CLOSED |
+| `accent-400` (`#d97030`) on `primary-950` (`#080f1a`) | ~6.5:1 | AA |
+
+> R4 CLOSED (2026-05-02): `accent-500` lightened from `#c45c14` (4.47:1 — below AA) to `#c55e15` (4.56:1 — strict AA). Does not reach AAA (7:1). Contrast assertions in `tokens.spec.ts` updated to assert ≥ 4.5:1.
+
+- Focus rings: `outline: 2px solid accent-500; outline-offset: 2px`, never removed
+- Status badges convey state via icon + text, never color alone (preserved from v0.1)
+- All interactive elements have a visible non-color hover/focus state
+
+> **Steve testability flag preserved:** Contrast assertions should be programmatic tests, not manual claims. See `testability-review.md`.
+
+---
+
+## 8. Migration map (v0.1 → v2)
+
+What changed from v0.1 (historical reference for anyone porting old code):
+
+| v0.1 token | v2 token |
+|---|---|
+| `color-primary-*` (indigo) | Removed. CTAs/accent use `color-accent-*` (copper). Structure uses `color-primary-*` (navy). |
+| `color-neutral-*` (slate) | `color-neutral-*` (new cream/slate values) + `color-primary-*` (dark surfaces) |
+| `color-accent-cyan/violet/emerald` | **Removed.** Use `color-accent-*` (copper) or omit. |
+| `shadow-glow-primary` rgba(99,102,241,...) | `shadow-copper` rgba(197,94,21,...) |
+| `bg-neutral-900 text-neutral-100` (consumer apps) | `bg-primary-950 text-neutral-100` (dark only) |
+| `<html className="dark">` (hardcoded) | `<body class="bg-primary-950 text-neutral-100 font-sans antialiased">` — dark only, no toggle |
+| `font-sans` Inter | `font-sans` Outfit |
+| No display font | `font-display` DM Serif Display (h1, h2, h3) |
+| Four color families (primary/navy/cream/slate) | Three families (primary/accent/neutral) |
+
+---
+
+## 9. What's locked vs. open
+
+**Locked (changing requires another holistic design system update):**
+
+- Three-color palette and tonal scales above
+- Dark-only theme posture for v2.0
+- Outfit (sans/UI) and DM Serif Display (display/headline) as UI typefaces
+- JetBrains Mono (mono) unchanged
+- Component visual treatments described in §5
+- PNG logo assets as the v2.0 logo delivery mechanism
+
+**Open (carried forward from the planning phase — not yet confirmed resolved):**
+
+- Exact pixel measurements for logo in the Header (40px is the handoff spec — visual weight test against Outfit nav links needed)
+- Favicon quality from `CrammedArtsyLogoV1.png` at 16px — review in browser; escalate if quality is unacceptable
+- Hero imagery for bjlandingpage — `brianmjones.html` mockup is the guide; implement in Next.js
+- `bjhomesite` dashboard-specific review: if any component uses `accent` for a non-copper purpose (e.g., a status color override), document and resolve before merge
+- Light mode for v2.1 (deferred by D1; token structure does not preclude it)
