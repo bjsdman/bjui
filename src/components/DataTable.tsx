@@ -407,7 +407,7 @@ export function DataTable<T>({
                           }}
                           aria-label={`Move column ${label}`}
                           onKeyDown={(e) => onHandleKeyDown(e, column.id)}
-                          className={`cursor-grab rounded-sm p-0.5 text-neutral-400 transition-colors hover:text-neutral-100 ${FOCUS_RING}`}
+                          className={`inline-flex h-6 w-6 cursor-grab items-center justify-center rounded-sm text-neutral-400 transition-colors hover:text-neutral-100 ${FOCUS_RING}`}
                         >
                           <GripVertical size={14} aria-hidden="true" />
                         </button>
@@ -417,7 +417,7 @@ export function DataTable<T>({
                           type="button"
                           onClick={() => toggleSort(column.id)}
                           className={[
-                            'inline-flex items-center gap-1 rounded-sm font-semibold uppercase tracking-eyebrow transition-colors hover:text-neutral-100',
+                            'inline-flex min-h-6 items-center gap-1 rounded-sm font-semibold uppercase tracking-eyebrow transition-colors hover:text-neutral-100',
                             active ? 'text-neutral-100' : '',
                             FOCUS_RING,
                           ].join(' ')}
