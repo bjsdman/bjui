@@ -889,3 +889,20 @@ describe('DataTable — edge cases: focus restore and storage failures', () => {
     expect(liveRegion(container)).toHaveTextContent('Columns reset to default order');
   });
 });
+
+describe('DataTable — WCAG 2.2 SC 2.5.8 target size (Yuri review)', () => {
+  // jsdom has no layout, so assert the sizing classes that guarantee >= 24x24 CSS px.
+  it('every "Move column" handle is at least 24x24', () => {
+    renderTable();
+    for (const label of DEFAULT_ORDER) {
+      expect(handle(label)).toHaveClass('h-6', 'w-6');
+    }
+  });
+
+  it('every sort button is at least 24px tall', () => {
+    renderTable();
+    for (const label of ['Name', 'Price', 'Brand']) {
+      expect(sortButton(label)).toHaveClass('min-h-6');
+    }
+  });
+});
